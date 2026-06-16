@@ -353,20 +353,11 @@ select.inp{cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg xmlns=
 
 </div><!-- /card -->
 
-<!-- CONFIG oculta -->
-<details style="margin-top:20px;max-width:440px;width:100%">
-  <summary style="font-size:11px;color:var(--texto3);cursor:pointer;padding:6px">⚙️ Configuración Supabase</summary>
-  <div style="background:var(--blanco);border-radius:var(--radio-sm);padding:14px;margin-top:6px;box-shadow:var(--sombra)">
-    <label style="font-size:11px;font-weight:600;color:var(--texto2);display:block;margin-bottom:4px">Project URL</label>
-    <input type="text" id="supa-url" placeholder="https://xxxxxx.supabase.co"
-      style="width:100%;border:1.5px solid var(--gris2);border-radius:var(--radio-xs);padding:8px 11px;font-size:12px;font-family:monospace;outline:none;margin-bottom:8px">
-    <label style="font-size:11px;font-weight:600;color:var(--texto2);display:block;margin-bottom:4px">Anon Key</label>
-    <input type="password" id="supa-anon" placeholder="sb_publishable_..."
-      style="width:100%;border:1.5px solid var(--gris2);border-radius:var(--radio-xs);padding:8px 11px;font-size:12px;font-family:monospace;outline:none;margin-bottom:8px">
-    <button onclick="guardarCfg()" style="padding:7px 16px;background:var(--azul);color:#fff;border:none;border-radius:6px;font-size:12px;cursor:pointer;font-weight:600">Guardar</button>
-    <p style="font-size:10.5px;color:var(--texto3);margin-top:6px">Configure una sola vez. Se guarda en este dispositivo.</p>
-  </div>
-</details>
+<!-- Configuración embebida — invisible al usuario -->
+<script>
+  localStorage.setItem('supa-url',  'https://hwfppixepttcwuqlyuqo.supabase.co');
+  localStorage.setItem('supa-anon', 'sb_publishable_B64SKwrgm9vJUvcf11g0zA_myBQaSfl');
+</script>
 
 <div class="toast" id="toast"></div>
 
@@ -386,13 +377,7 @@ window.addEventListener('DOMContentLoaded', () => {
   if(saved){ try{ SESSION = JSON.parse(saved); verificarSesion(); }catch(e){} }
 });
 
-function guardarCfg(){
-  SUPA_URL  = document.getElementById('supa-url').value.trim();
-  SUPA_ANON = document.getElementById('supa-anon').value.trim();
-  localStorage.setItem('supa-url',  SUPA_URL);
-  localStorage.setItem('supa-anon', SUPA_ANON);
-  toast('✅ Configuración guardada');
-}
+function guardarCfg(){ /* configuración embebida */ }
 
 // ── TABS ──────────────────────────────────────────────────────
 function setTab(t){
@@ -667,11 +652,7 @@ function irApp(){
 function checkCfg(){
   SUPA_URL  = localStorage.getItem('supa-url')  || '';
   SUPA_ANON = localStorage.getItem('supa-anon') || '';
-  if(!SUPA_URL||!SUPA_ANON){
-    toast('⚠️ Configure Supabase primero (menú inferior)');
-    return false;
-  }
-  return true;
+  return !!(SUPA_URL && SUPA_ANON);
 }
 function showMsg(id, tipo, txt){
   const el = document.getElementById(id);
