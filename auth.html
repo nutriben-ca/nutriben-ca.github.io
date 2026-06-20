@@ -597,30 +597,18 @@ async function guardarPerfil(){
   };
   setBtnLoading('btn-guardar', true, 'Guardando…');
   try{
-    // Intentar PATCH con token del usuario
-    const r = await fetch(`${SUPA_URL}/rest/v1/medicos?id=eq.${SESSION.user.id}`,{
-      method:'PATCH',
+    // Guardar perfil via Edge Function (bypassa RLS correctamente)
+    const r = await fetch(`${SUPA_URL}/functions/v1/guardar-perfil`,{
+      method:'POST',
       headers:{
         'Content-Type':'application/json',
-        'apikey':SUPA_ANON,
         'Authorization':'Bearer '+SESSION.access_token,
-        'Prefer':'return=minimal'
       },
       body:JSON.stringify(datos)
     });
-    // Si falla intentar con upsert
     if(!r.ok){
-      const r2 = await fetch(`${SUPA_URL}/rest/v1/medicos`,{
-        method:'POST',
-        headers:{
-          'Content-Type':'application/json',
-          'apikey':SUPA_ANON,
-          'Authorization':'Bearer '+SESSION.access_token,
-          'Prefer':'resolution=merge-duplicates,return=minimal'
-        },
-        body:JSON.stringify({...datos, id:SESSION.user.id})
-      });
-      if(!r2.ok) throw new Error('Error al guardar perfil');
+      const e = await r.json();
+      throw new Error(e.error||'Error al guardar perfil');
     }
     PERFIL = {...(PERFIL||{}), ...datos};
     mostrarEstadoActivo();
