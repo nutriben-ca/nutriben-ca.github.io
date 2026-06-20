@@ -1,0 +1,650 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard Médico — Clínica Digital Nutriben</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --azul:#0033A1;--azul75:#3F58A7;--azul-cielo:#00A0DF;--azul-light:#BADDF4;--azul-ultra:#eef4fb;
+  --naranja:#FAA334;--verde:#1db86a;--verde-bg:#e6f9ef;
+  --rojo:#d93535;--rojo-bg:#fdeaea;--amarillo-bg:#fff8e6;
+  --gris1:#f4f7fc;--gris2:#e2e8f4;--gris3:#9aa3bb;
+  --texto:#1a2340;--texto2:#4a5370;--texto3:#8892aa;
+  --blanco:#fff;--radio:12px;--radio-sm:8px;--radio-xs:6px;
+  --sidebar:260px;--sombra:0 2px 16px rgba(0,51,161,0.08);
+}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--gris1);color:var(--texto);
+  min-height:100vh;display:flex}
+
+/* ── SIDEBAR ── */
+.sidebar{width:var(--sidebar);background:var(--azul);color:#fff;display:flex;
+  flex-direction:column;min-height:100vh;flex-shrink:0;position:fixed;top:0;left:0;bottom:0;z-index:100}
+.sb-brand{padding:20px 18px 16px;border-bottom:1px solid rgba(255,255,255,0.12)}
+.sb-logo{width:40px;height:40px;background:rgba(255,255,255,0.15);border-radius:10px;
+  display:flex;align-items:center;justify-content:center;font-size:20px;margin-bottom:10px}
+.sb-title{font-size:15px;font-weight:700;letter-spacing:-0.3px}
+.sb-sub{font-size:11px;opacity:.65;margin-top:2px}
+
+.sb-medico{padding:14px 18px;border-bottom:1px solid rgba(255,255,255,0.12);
+  display:flex;align-items:center;gap:10px}
+.sb-avatar{width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,0.2);
+  display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+.sb-nombre{font-size:13px;font-weight:600}
+.sb-esp{font-size:11px;opacity:.65;margin-top:1px}
+
+.sb-nav{flex:1;padding:12px 0}
+.sb-item{display:flex;align-items:center;gap:10px;padding:11px 18px;
+  font-size:13px;cursor:pointer;transition:background .15s;color:rgba(255,255,255,0.8);
+  border-left:3px solid transparent}
+.sb-item:hover{background:rgba(255,255,255,0.08);color:#fff}
+.sb-item.active{background:rgba(255,255,255,0.12);color:#fff;border-left-color:var(--azul-cielo)}
+.sb-item .icon{font-size:16px;width:20px;text-align:center}
+.sb-badge{margin-left:auto;background:var(--naranja);color:#fff;border-radius:10px;
+  padding:2px 7px;font-size:10px;font-weight:700}
+
+.sb-footer{padding:14px 18px;border-top:1px solid rgba(255,255,255,0.12)}
+.sb-logout{display:flex;align-items:center;gap:8px;font-size:12px;color:rgba(255,255,255,0.6);
+  cursor:pointer;transition:color .15s}
+.sb-logout:hover{color:#fff}
+
+/* ── MAIN ── */
+.main{margin-left:var(--sidebar);flex:1;display:flex;flex-direction:column;min-height:100vh}
+
+.topbar{background:var(--blanco);border-bottom:1px solid var(--gris2);padding:14px 24px;
+  display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50}
+.topbar-left{display:flex;align-items:center;gap:12px}
+.topbar-title{font-size:16px;font-weight:700;color:var(--azul)}
+.topbar-sub{font-size:12px;color:var(--texto3);margin-top:1px}
+.topbar-right{display:flex;align-items:center;gap:10px}
+.fecha-badge{background:var(--azul-ultra);color:var(--azul);border-radius:20px;
+  padding:5px 12px;font-size:12px;font-weight:600}
+.refresh-btn{background:none;border:1.5px solid var(--gris2);border-radius:var(--radio-xs);
+  padding:6px 12px;font-size:12px;color:var(--texto2);cursor:pointer;transition:all .15s}
+.refresh-btn:hover{border-color:var(--azul-cielo);color:var(--azul)}
+
+.content{padding:20px 24px;flex:1}
+
+/* ── STATS ── */
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px}
+.stat{background:var(--blanco);border-radius:var(--radio);padding:16px;box-shadow:var(--sombra)}
+.stat-num{font-size:28px;font-weight:700;color:var(--azul);line-height:1}
+.stat-lbl{font-size:12px;color:var(--texto3);margin-top:4px}
+.stat-sub{font-size:11px;margin-top:6px;font-weight:600}
+.stat-sub.verde{color:var(--verde)}
+.stat-sub.rojo{color:var(--rojo)}
+.stat-sub.naranja{color:var(--naranja)}
+
+/* ── LAYOUT DOS COLUMNAS ── */
+.two-col{display:grid;grid-template-columns:1fr 1.6fr;gap:16px;align-items:start}
+
+/* ── LISTA PRECONSULTAS ── */
+.panel{background:var(--blanco);border-radius:var(--radio);box-shadow:var(--sombra);overflow:hidden}
+.panel-hdr{padding:14px 16px;border-bottom:1px solid var(--gris2);display:flex;
+  align-items:center;justify-content:space-between}
+.panel-ttl{font-size:14px;font-weight:700;color:var(--azul)}
+.panel-act{font-size:12px;color:var(--azul-cielo);cursor:pointer}
+
+.search-bar{padding:10px 12px;border-bottom:1px solid var(--gris2)}
+.search-bar input{width:100%;border:1.5px solid var(--gris2);border-radius:var(--radio-xs);
+  padding:7px 10px;font-size:13px;outline:none;font-family:inherit}
+.search-bar input:focus{border-color:var(--azul-cielo)}
+
+.lista{max-height:calc(100vh - 280px);overflow-y:auto}
+.pc-item{padding:12px 14px;border-bottom:1px solid var(--gris2);cursor:pointer;
+  transition:background .12s;display:flex;align-items:flex-start;gap:10px}
+.pc-item:hover{background:var(--gris1)}
+.pc-item.active{background:var(--azul-ultra);border-left:3px solid var(--azul)}
+.pc-item.atendido{opacity:.55}
+.pc-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;margin-top:4px}
+.pc-dot.urgente-ahora{background:var(--rojo)}
+.pc-dot.urgente-24h{background:var(--naranja)}
+.pc-dot.no-urgente{background:var(--verde)}
+.pc-info{flex:1;min-width:0}
+.pc-nombre{font-size:13px;font-weight:600;color:var(--texto);white-space:nowrap;
+  overflow:hidden;text-overflow:ellipsis}
+.pc-sint{font-size:11px;color:var(--texto3);margin-top:2px;white-space:nowrap;
+  overflow:hidden;text-overflow:ellipsis}
+.pc-hora{font-size:11px;color:var(--texto3);flex-shrink:0}
+.pc-empty{padding:32px 16px;text-align:center;color:var(--texto3);font-size:13px}
+
+/* ── DETALLE PRECONSULTA ── */
+.detalle{background:var(--blanco);border-radius:var(--radio);box-shadow:var(--sombra)}
+.det-hdr{padding:16px 18px;border-bottom:1px solid var(--gris2)}
+.det-nombre{font-size:17px;font-weight:700;color:var(--azul)}
+.det-meta{font-size:12px;color:var(--texto3);margin-top:4px;display:flex;gap:12px;flex-wrap:wrap}
+.det-meta span{display:flex;align-items:center;gap:4px}
+
+.urg-pill{display:inline-flex;align-items:center;gap:6px;border-radius:20px;
+  padding:5px 14px;font-size:12px;font-weight:700;margin-top:10px}
+.urg-pill.v{background:var(--verde-bg);color:#0d6b3a}
+.urg-pill.a{background:var(--amarillo-bg);color:#7a4500}
+.urg-pill.r{background:var(--rojo-bg);color:var(--rojo)}
+
+.det-body{padding:16px 18px;max-height:calc(100vh - 320px);overflow-y:auto}
+.det-section{margin-bottom:16px}
+.det-ttl{font-size:11px;font-weight:700;color:var(--azul75);text-transform:uppercase;
+  letter-spacing:.5px;margin-bottom:8px;padding-bottom:5px;border-bottom:1px solid var(--gris2)}
+.det-content{font-size:13px;line-height:1.75;color:var(--texto)}
+.det-content h3{font-size:12.5px;font-weight:700;color:var(--azul75);margin:10px 0 4px}
+.det-content ul{padding-left:16px;margin:3px 0}
+.det-content li{margin-bottom:3px}
+.det-content p{margin-bottom:6px}
+
+.alarm-banner{background:var(--rojo-bg);border:1.5px solid var(--rojo);border-radius:var(--radio-xs);
+  padding:10px 13px;margin-bottom:14px;font-size:12px;color:var(--rojo);
+  font-weight:600;display:none;align-items:center;gap:8px}
+.alarm-banner.on{display:flex}
+
+.det-chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+.det-chip{background:var(--gris1);border:1px solid var(--gris2);border-radius:20px;
+  padding:4px 10px;font-size:12px;color:var(--texto2)}
+
+.det-footer{padding:12px 18px;border-top:1px solid var(--gris2);display:flex;gap:8px}
+.btn{padding:9px 16px;border-radius:var(--radio-xs);font-size:13px;font-weight:600;
+  border:none;cursor:pointer;transition:all .15s;font-family:inherit;display:flex;align-items:center;gap:6px}
+.btn-p{background:var(--azul);color:#fff}
+.btn-p:hover{background:#002585}
+.btn-wa{background:#25D366;color:#fff}
+.btn-wa:hover{background:#1aab52}
+.btn-s{background:var(--gris1);color:var(--texto2);border:1.5px solid var(--gris2)}
+.btn-s:hover{border-color:var(--azul-cielo);color:var(--azul)}
+.btn-ok{background:var(--verde);color:#fff}
+
+.det-empty{padding:60px 20px;text-align:center;color:var(--texto3)}
+.det-empty-icon{font-size:48px;margin-bottom:12px}
+.det-empty p{font-size:14px}
+
+/* ── MOBILE SIDEBAR TOGGLE ── */
+.mob-toggle{display:none;position:fixed;bottom:20px;right:20px;width:48px;height:48px;
+  background:var(--azul);border-radius:50%;border:none;cursor:pointer;
+  color:#fff;font-size:22px;z-index:200;box-shadow:0 4px 16px rgba(0,51,161,0.3)}
+
+/* ── LOADING ── */
+.loading-wrap{padding:40px;text-align:center;color:var(--texto3)}
+.dots{display:flex;justify-content:center;gap:6px;margin-bottom:12px}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--azul-cielo);animation:pulse 1s infinite}
+.dot:nth-child(2){animation-delay:.2s}
+.dot:nth-child(3){animation-delay:.4s}
+@keyframes pulse{0%,100%{opacity:.2;transform:scale(.7)}50%{opacity:1;transform:scale(1)}}
+
+/* ── TOAST ── */
+.toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%) translateY(70px);
+  background:var(--azul);color:#fff;padding:9px 20px;border-radius:20px;
+  font-size:13px;font-weight:600;box-shadow:0 4px 18px rgba(0,0,0,.2);
+  transition:transform .28s ease;z-index:999;white-space:nowrap}
+.toast.on{transform:translateX(-50%) translateY(0)}
+
+@media(max-width:900px){
+  .stats{grid-template-columns:repeat(2,1fr)}
+  .two-col{grid-template-columns:1fr}
+  .sidebar{transform:translateX(-100%);transition:transform .25s ease}
+  .sidebar.open{transform:translateX(0)}
+  .main{margin-left:0}
+  .mob-toggle{display:flex;align-items:center;justify-content:center}
+}
+@media(max-width:600px){
+  .stats{grid-template-columns:1fr 1fr}
+  .content{padding:14px}
+  .topbar{padding:12px 16px}
+}
+@media print{
+  .sidebar,.topbar,.det-footer,.mob-toggle{display:none!important}
+  .main{margin-left:0}
+  .two-col{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<div class="sidebar" id="sidebar">
+  <div class="sb-brand">
+    <div class="sb-logo">🩺</div>
+    <div class="sb-title">Clínica Digital</div>
+    <div class="sb-sub">Powered by Nutriben</div>
+  </div>
+  <div class="sb-medico">
+    <div class="sb-avatar">👨‍⚕️</div>
+    <div>
+      <div class="sb-nombre" id="sb-nombre">Cargando…</div>
+      <div class="sb-esp" id="sb-esp">—</div>
+    </div>
+  </div>
+  <div class="sb-nav">
+    <div class="sb-item active" onclick="setView('hoy')">
+      <span class="icon">📋</span> Preconsultas de hoy
+      <span class="sb-badge" id="badge-hoy">0</span>
+    </div>
+    <div class="sb-item" onclick="setView('pendientes')">
+      <span class="icon">⏳</span> Pendientes
+      <span class="sb-badge" id="badge-pend" style="background:var(--rojo)">0</span>
+    </div>
+    <div class="sb-item" onclick="setView('historial')">
+      <span class="icon">📁</span> Historial
+    </div>
+    <div class="sb-item" onclick="setView('qr')">
+      <span class="icon">📱</span> Mi código QR
+    </div>
+    <div class="sb-item" onclick="window.location.href='auth.html'">
+      <span class="icon">⚙️</span> Mi perfil
+    </div>
+  </div>
+  <div class="sb-footer">
+    <div class="sb-logout" onclick="logout()">
+      <span>🚪</span> Cerrar sesión
+    </div>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+  <div class="topbar">
+    <div class="topbar-left">
+      <div>
+        <div class="topbar-title" id="top-title">Preconsultas de hoy</div>
+        <div class="topbar-sub" id="top-sub">Cargando…</div>
+      </div>
+    </div>
+    <div class="topbar-right">
+      <div class="fecha-badge" id="fecha-badge">—</div>
+      <button class="refresh-btn" onclick="cargarPreconsultas()">↻ Actualizar</button>
+    </div>
+  </div>
+
+  <div class="content">
+    <!-- STATS -->
+    <div class="stats">
+      <div class="stat">
+        <div class="stat-num" id="stat-total">0</div>
+        <div class="stat-lbl">Preconsultas hoy</div>
+        <div class="stat-sub verde" id="stat-atendidos">0 atendidos</div>
+      </div>
+      <div class="stat">
+        <div class="stat-num" id="stat-urgentes" style="color:var(--rojo)">0</div>
+        <div class="stat-lbl">Urgentes ahora</div>
+        <div class="stat-sub rojo" id="stat-24h">0 urgentes en 24h</div>
+      </div>
+      <div class="stat">
+        <div class="stat-num" id="stat-pendientes" style="color:var(--naranja)">0</div>
+        <div class="stat-lbl">Pendientes</div>
+        <div class="stat-sub naranja">Sin atender</div>
+      </div>
+      <div class="stat">
+        <div class="stat-num" id="stat-semana">0</div>
+        <div class="stat-lbl">Esta semana</div>
+        <div class="stat-sub verde">Total acumulado</div>
+      </div>
+    </div>
+
+    <!-- DOS COLUMNAS -->
+    <div class="two-col">
+      <!-- LISTA -->
+      <div class="panel">
+        <div class="panel-hdr">
+          <div class="panel-ttl">Lista de pacientes</div>
+          <div class="panel-act" onclick="cargarPreconsultas()">↻</div>
+        </div>
+        <div class="search-bar">
+          <input type="text" id="search-inp" placeholder="🔍 Buscar por nombre…"
+            oninput="filtrarLista(this.value)">
+        </div>
+        <div class="lista" id="lista">
+          <div class="loading-wrap">
+            <div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+            <div>Cargando preconsultas…</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- DETALLE -->
+      <div class="detalle panel" id="detalle">
+        <div class="det-empty">
+          <div class="det-empty-icon">👈</div>
+          <p>Seleccione un paciente de la lista para ver su preconsulta</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<button class="mob-toggle" onclick="toggleSidebar()">☰</button>
+<div class="toast" id="toast"></div>
+
+<!-- CONFIG EMBEBIDA -->
+<script>
+localStorage.setItem('supa-url',  'https://hwfppixepttcwuqlyuqo.supabase.co');
+localStorage.setItem('supa-anon', 'sb_publishable_B64SKwrgm9vJUvcf11g0zA_myBQaSfl');
+</script>
+
+<script>
+const SUPA_URL  = 'https://hwfppixepttcwuqlyuqo.supabase.co';
+const SUPA_ANON = 'sb_publishable_B64SKwrgm9vJUvcf11g0zA_myBQaSfl';
+
+let SESSION   = null;
+let PERFIL    = null;
+let TODAS     = [];
+let FILTRADAS = [];
+let PC_ACTIVA = null;
+let VIEW      = 'hoy';
+
+// ── INIT ─────────────────────────────────────────────────────
+window.addEventListener('DOMContentLoaded', async () => {
+  // Fecha
+  const hoy = new Date();
+  document.getElementById('fecha-badge').textContent =
+    hoy.toLocaleDateString('es-HN', {weekday:'long',day:'numeric',month:'long'});
+  document.getElementById('top-sub').textContent =
+    hoy.toLocaleDateString('es-HN', {day:'numeric',month:'long',year:'numeric'});
+
+  // Restaurar sesión
+  const saved = sessionStorage.getItem('clinica-token') ||
+                localStorage.getItem('clinica-token-persist');
+  if(!saved){ window.location.href='auth.html'; return; }
+
+  SESSION = { access_token: saved };
+  await cargarPerfil();
+  await cargarPreconsultas();
+
+  // Auto-refresh cada 30 segundos
+  setInterval(cargarPreconsultas, 30000);
+});
+
+// ── PERFIL ────────────────────────────────────────────────────
+async function cargarPerfil(){
+  try{
+    const r = await fetch(`${SUPA_URL}/auth/v1/user`,{
+      headers:{'apikey':SUPA_ANON,'Authorization':'Bearer '+SESSION.access_token}
+    });
+    const user = await r.json();
+    SESSION.user = user;
+
+    const r2 = await fetch(`${SUPA_URL}/rest/v1/medicos?id=eq.${user.id}&select=*`,{
+      headers:{'apikey':SUPA_ANON,'Authorization':'Bearer '+SESSION.access_token}
+    });
+    const rows = await r2.json();
+    PERFIL = rows[0] || null;
+
+    document.getElementById('sb-nombre').textContent = PERFIL?.nombre || user.email;
+    document.getElementById('sb-esp').textContent    = PERFIL?.especialidad || 'Médico';
+  }catch(e){ console.error('Error perfil:', e); }
+}
+
+// ── PRECONSULTAS ──────────────────────────────────────────────
+async function cargarPreconsultas(){
+  if(!SESSION?.access_token) return;
+
+  const hoy = new Date();
+  const inicio = new Date(hoy.getFullYear(), hoy.getMonth(), hoy.getDate()).toISOString();
+  const fin    = new Date(hoy.getFullYear(), hoy.getMonth(), hoy.getDate()+1).toISOString();
+
+  let url = `${SUPA_URL}/rest/v1/preconsultas?select=*&order=creado_en.desc`;
+  if(VIEW === 'hoy') url += `&creado_en=gte.${inicio}&creado_en=lt.${fin}`;
+  if(VIEW === 'pendientes') url += `&atendido=eq.false`;
+
+  try{
+    const r = await fetch(url,{
+      headers:{'apikey':SUPA_ANON,'Authorization':'Bearer '+SESSION.access_token}
+    });
+    TODAS = await r.json();
+    FILTRADAS = [...TODAS];
+    renderLista(FILTRADAS);
+    actualizarStats();
+
+    // Semana
+    const lunes = new Date(hoy);
+    lunes.setDate(hoy.getDate() - hoy.getDay() + 1);
+    const r2 = await fetch(
+      `${SUPA_URL}/rest/v1/preconsultas?select=id&creado_en=gte.${lunes.toISOString()}`,{
+      headers:{'apikey':SUPA_ANON,'Authorization':'Bearer '+SESSION.access_token}
+    });
+    const semana = await r2.json();
+    document.getElementById('stat-semana').textContent = semana.length;
+
+  }catch(e){ console.error('Error cargando:', e); }
+}
+
+function actualizarStats(){
+  const total     = TODAS.length;
+  const atendidos = TODAS.filter(p=>p.atendido).length;
+  const urgAhora  = TODAS.filter(p=>p.urgencia==='URGENTE AHORA').length;
+  const urg24     = TODAS.filter(p=>p.urgencia==='URGENTE EN 24H').length;
+  const pendientes= TODAS.filter(p=>!p.atendido).length;
+
+  document.getElementById('stat-total').textContent     = total;
+  document.getElementById('stat-atendidos').textContent = atendidos+' atendidos';
+  document.getElementById('stat-urgentes').textContent  = urgAhora;
+  document.getElementById('stat-24h').textContent       = urg24+' urgentes en 24h';
+  document.getElementById('stat-pendientes').textContent= pendientes;
+  document.getElementById('badge-hoy').textContent      = total;
+  document.getElementById('badge-pend').textContent     = pendientes;
+}
+
+function renderLista(lista){
+  const el = document.getElementById('lista');
+  if(!lista.length){
+    el.innerHTML = '<div class="pc-empty">📭 No hay preconsultas en esta vista</div>';
+    return;
+  }
+  el.innerHTML = lista.map(p => {
+    const hora = new Date(p.creado_en).toLocaleTimeString('es-HN',{hour:'2-digit',minute:'2-digit'});
+    const dot  = p.urgencia==='URGENTE AHORA' ? 'urgente-ahora' :
+                 p.urgencia==='URGENTE EN 24H' ? 'urgente-24h' : 'no-urgente';
+    const sint = p.sintomas || '—';
+    return `<div class="pc-item ${p.atendido?'atendido':''} ${PC_ACTIVA?.id===p.id?'active':''}"
+      onclick="verDetalle('${p.id}')">
+      <div class="pc-dot ${dot}"></div>
+      <div class="pc-info">
+        <div class="pc-nombre">${p.nombre_paciente} ${p.atendido?'✓':''}</div>
+        <div class="pc-sint">${sint}</div>
+      </div>
+      <div class="pc-hora">${hora}</div>
+    </div>`;
+  }).join('');
+}
+
+function filtrarLista(q){
+  FILTRADAS = q ? TODAS.filter(p=>p.nombre_paciente.toLowerCase().includes(q.toLowerCase())) : [...TODAS];
+  renderLista(FILTRADAS);
+}
+
+// ── DETALLE ───────────────────────────────────────────────────
+async function verDetalle(id){
+  PC_ACTIVA = TODAS.find(p=>p.id===id);
+  if(!PC_ACTIVA) return;
+  renderLista(FILTRADAS); // re-render para highlight
+
+  const el = document.getElementById('detalle');
+  const urgClass = PC_ACTIVA.urgencia==='URGENTE AHORA' ? 'r' :
+                   PC_ACTIVA.urgencia==='URGENTE EN 24H' ? 'a' : 'v';
+  const urgIcon  = PC_ACTIVA.urgencia==='URGENTE AHORA' ? '🚨' :
+                   PC_ACTIVA.urgencia==='URGENTE EN 24H' ? '⚠️' : '✅';
+  const hora = new Date(PC_ACTIVA.creado_en).toLocaleString('es-HN',{
+    day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'});
+
+  // Formatear resumen IA
+  let resumenHtml = '<p style="color:var(--texto3)">Resumen no disponible</p>';
+  if(PC_ACTIVA.resumen_ia){
+    resumenHtml = PC_ACTIVA.resumen_ia
+      .replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>')
+      .split('\n').map(l=>{
+        const t=l.trim();
+        if(!t) return '';
+        if(t.startsWith('<strong>')) return '<h3>'+t.replace(/<\/?strong>/g,'')+'</h3>';
+        if(t.startsWith('• ')||t.startsWith('▸ ')) return '<li>'+t.slice(2)+'</li>';
+        return '<p>'+t+'</p>';
+      }).join('')
+      .replace(/(<li>[\s\S]*?<\/li>)+/g,m=>'<ul>'+m+'</ul>');
+  }
+
+  // Datos del JSON
+  const datos = PC_ACTIVA.datos_json || {};
+  const sintomas = PC_ACTIVA.sintomas || '—';
+  const alarmas  = datos.alarmas?.join(', ') || 'Ninguna reportada';
+  const meds     = datos.meds?.join(', ')    || 'Ninguno';
+
+  el.innerHTML = `
+    <div class="det-hdr">
+      <div class="alarm-banner ${PC_ACTIVA.urgencia==='URGENTE AHORA'?'on':''}" id="alarm-b">
+        🚨 <span>SEÑAL DE ALARMA — Atender de inmediato</span>
+      </div>
+      <div class="det-nombre">${PC_ACTIVA.nombre_paciente}</div>
+      <div class="det-meta">
+        <span>🎂 ${PC_ACTIVA.edad||'—'}</span>
+        <span>⚖️ ${PC_ACTIVA.peso||'—'}</span>
+        <span>🕐 ${hora}</span>
+        <span>${PC_ACTIVA.atendido?'✅ Atendido':'⏳ Pendiente'}</span>
+      </div>
+      <div class="urg-pill ${urgClass}">${urgIcon} ${PC_ACTIVA.urgencia||'NO URGENTE'}</div>
+    </div>
+    <div class="det-body">
+      <div class="det-section">
+        <div class="det-ttl">Síntomas referidos</div>
+        <div class="det-chips">
+          ${sintomas.split(',').map(s=>`<span class="det-chip">${s.trim()}</span>`).join('')}
+        </div>
+      </div>
+      <div class="det-section">
+        <div class="det-ttl">Señales de alarma</div>
+        <div class="det-content"><p>${alarmas}</p></div>
+      </div>
+      <div class="det-section">
+        <div class="det-ttl">Medicamentos previos</div>
+        <div class="det-content"><p>${meds}</p></div>
+      </div>
+      <div class="det-section">
+        <div class="det-ttl">Resumen clínico IA</div>
+        <div class="det-content">${resumenHtml}</div>
+      </div>
+    </div>
+    <div class="det-footer">
+      <button class="btn btn-ok" onclick="marcarAtendido('${PC_ACTIVA.id}')">
+        ${PC_ACTIVA.atendido?'↩ Desmarcar':'✓ Marcar atendido'}
+      </button>
+      <button class="btn btn-wa" onclick="enviarWA('${PC_ACTIVA.id}')">
+        💬 WhatsApp
+      </button>
+      <button class="btn btn-s" onclick="window.print()">🖨️ Imprimir</button>
+    </div>`;
+}
+
+async function marcarAtendido(id){
+  const pc = TODAS.find(p=>p.id===id);
+  if(!pc) return;
+  const nuevoEstado = !pc.atendido;
+  try{
+    await fetch(`${SUPA_URL}/rest/v1/preconsultas?id=eq.${id}`,{
+      method:'PATCH',
+      headers:{
+        'Content-Type':'application/json',
+        'apikey':SUPA_ANON,
+        'Authorization':'Bearer '+SESSION.access_token,
+        'Prefer':'return=minimal'
+      },
+      body:JSON.stringify({atendido:nuevoEstado})
+    });
+    pc.atendido = nuevoEstado;
+    toast(nuevoEstado?'✅ Marcado como atendido':'↩ Desmarcado');
+    renderLista(FILTRADAS);
+    verDetalle(id);
+    actualizarStats();
+  }catch(e){ toast('Error al actualizar'); }
+}
+
+function enviarWA(id){
+  const pc = TODAS.find(p=>p.id===id);
+  if(!pc) return;
+  const tel = PERFIL?.telefono?.replace(/[^0-9]/g,'')||'';
+  if(!tel){ toast('Configure su teléfono en el perfil'); return; }
+  const txt = '*PRECONSULTA — '+pc.nombre_paciente.toUpperCase()+'*\n\n'+(pc.resumen_ia||'Sin resumen');
+  window.open('https://wa.me/'+tel+'?text='+encodeURIComponent(txt),'_blank');
+}
+
+// ── VISTAS ────────────────────────────────────────────────────
+function setView(v){
+  VIEW = v;
+  document.querySelectorAll('.sb-item').forEach(el=>el.classList.remove('active'));
+  event.currentTarget.classList.add('active');
+  const titles = {hoy:'Preconsultas de hoy',pendientes:'Pendientes',historial:'Historial completo',qr:'Mi código QR'};
+  document.getElementById('top-title').textContent = titles[v]||v;
+  if(v==='qr'){ mostrarQR(); return; }
+  cargarPreconsultas();
+}
+
+function mostrarQR(){
+  const url = `https://nutriben-ca.github.io/preconsulta_v3.html?medico=${SESSION?.user?.id||''}`;
+  const nombre = PERFIL?.nombre || 'Mi consultorio';
+
+  document.getElementById('lista').innerHTML =
+    `<div style="padding:20px;text-align:center">
+      <p style="font-size:13px;color:var(--texto2);margin-bottom:14px;line-height:1.6">
+        Comparta este QR con sus pacientes para que completen la pre clínica:
+      </p>
+      <div style="background:#fff;padding:16px;border-radius:12px;display:inline-block;border:1px solid var(--gris2);box-shadow:var(--sombra)">
+        <div id="qr-canvas"></div>
+        <div style="margin-top:10px;font-size:12px;font-weight:700;color:var(--azul)">${nombre}</div>
+        <div style="font-size:10px;color:var(--texto3);margin-top:3px">Cortesía Nutriben — Pre Clínica</div>
+      </div>
+      <div style="margin-top:14px">
+        <button onclick="descargarQR()" style="padding:8px 18px;background:var(--azul);color:#fff;border:none;border-radius:6px;font-size:13px;font-weight:600;cursor:pointer;margin-right:8px">
+          📥 Descargar QR
+        </button>
+        <button onclick="compartirURL('${url}')" style="padding:8px 18px;background:var(--gris1);color:var(--texto2);border:1.5px solid var(--gris2);border-radius:6px;font-size:13px;font-weight:600;cursor:pointer">
+          🔗 Copiar link
+        </button>
+      </div>
+      <p style="font-size:10px;color:var(--texto3);margin-top:10px;word-break:break-all;padding:0 10px">${url}</p>
+    </div>`;
+
+  document.getElementById('detalle').innerHTML =
+    '<div class="det-empty"><div class="det-empty-icon">📱</div><p>Escanee el QR para probar la pre clínica</p></div>';
+
+  // Generar QR localmente con qrcodejs
+  setTimeout(()=>{
+    const canvas = document.getElementById('qr-canvas');
+    if(!canvas) return;
+    if(typeof QRCode !== 'undefined'){
+      new QRCode(canvas, {
+        text: url, width:180, height:180,
+        colorDark:'#0033A1', colorLight:'#ffffff',
+        correctLevel: QRCode.CorrectLevel.M
+      });
+    }
+  }, 100);
+}
+
+function descargarQR(){
+  const canvas = document.querySelector('#qr-canvas canvas') || document.querySelector('#qr-canvas img');
+  if(!canvas){ toast('QR no disponible'); return; }
+  const a = document.createElement('a');
+  a.download = 'QR-PreClinica-Nutriben.png';
+  if(canvas.tagName==='CANVAS') a.href = canvas.toDataURL('image/png');
+  else a.href = canvas.src;
+  a.click();
+}
+
+function compartirURL(url){
+  navigator.clipboard?.writeText(url).then(()=>toast('✅ Link copiado al portapapeles')).catch(()=>{
+    prompt('Copie este link:', url);
+  });
+}
+
+// ── UTILS ─────────────────────────────────────────────────────
+function logout(){
+  sessionStorage.removeItem('clinica-token');
+  localStorage.removeItem('clinica-token-persist');
+  window.location.href='auth.html';
+}
+function toggleSidebar(){
+  document.getElementById('sidebar').classList.toggle('open');
+}
+function toast(msg,ms=2800){
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.classList.add('on');
+  clearTimeout(t._t); t._t=setTimeout(()=>t.classList.remove('on'),ms);
+}
+</script>
+</body>
+</html>

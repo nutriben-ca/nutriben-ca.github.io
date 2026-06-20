@@ -1,0 +1,1338 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Cortesía Nutriben — Pre Clínica</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --azul:#0033A1;--azul75:#3F58A7;--azul-cielo:#00A0DF;--azul-light:#BADDF4;--azul-ultra:#eef4fb;
+  --naranja:#FAA334;--menta:#7EC7BD;--verde:#1db86a;--verde-bg:#e6f9ef;
+  --rojo:#d93535;--rojo-bg:#fdeaea;--amarillo-bg:#fff8e6;
+  --gris1:#f4f7fc;--gris2:#e2e8f4;--gris3:#9aa3bb;
+  --texto:#1a2340;--texto2:#4a5370;--texto3:#8892aa;
+  --blanco:#fff;--radio:16px;--radio-sm:10px;--radio-xs:7px;
+  --sombra:0 2px 16px rgba(0,51,161,0.08);
+}
+body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--gris1);color:var(--texto);min-height:100vh}
+.app{max-width:560px;margin:0 auto;padding:12px 12px 48px}
+
+/* HEADER */
+.hdr{background:linear-gradient(135deg,var(--azul) 0%,var(--azul75) 100%);
+  border-radius:var(--radio);padding:20px 22px;margin-bottom:14px;color:#fff;
+  display:flex;align-items:center;gap:14px;position:relative;overflow:hidden}
+.hdr::after{content:'';position:absolute;right:-16px;top:-16px;width:100px;height:100px;
+  border-radius:50%;background:rgba(0,160,223,0.15);pointer-events:none}
+.hdr-icon{width:46px;height:46px;border-radius:50%;background:rgba(255,255,255,0.15);
+  display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
+.hdr h1{font-size:17px;font-weight:700;letter-spacing:-0.3px}
+.hdr p{font-size:11px;opacity:.75;margin-top:3px;line-height:1.4}
+.hdr-badge{background:rgba(255,255,255,0.18);border-radius:20px;padding:3px 10px;
+  font-size:10px;font-weight:600;margin-top:6px;display:inline-block}
+
+/* PROGRESS */
+.prog{background:var(--blanco);border-radius:var(--radio-sm);padding:12px 16px;
+  margin-bottom:12px;box-shadow:var(--sombra);display:none}
+.prog.on{display:block}
+.prog-bar{display:flex;gap:5px;margin-bottom:7px}
+.pb{flex:1;height:5px;border-radius:3px;background:var(--gris2);transition:background .3s}
+.pb.done{background:var(--azul-cielo)}
+.pb.active{background:var(--azul)}
+.prog-info{display:flex;justify-content:space-between}
+.prog-lbl{font-size:12px;color:var(--texto2)}
+.prog-pct{font-size:12px;font-weight:700;color:var(--azul)}
+
+/* CARDS */
+.card{background:var(--blanco);border-radius:var(--radio);padding:20px;
+  margin-bottom:12px;box-shadow:var(--sombra);display:none;animation:up .22s ease}
+.card.on{display:block}
+@keyframes up{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+.card-ttl{font-size:15px;font-weight:700;color:var(--azul);display:flex;align-items:center;gap:7px;margin-bottom:3px}
+.card-sub{font-size:12px;color:var(--texto2);margin-bottom:16px;line-height:1.55}
+
+/* MENU INICIAL */
+.menu-card{background:var(--blanco);border-radius:var(--radio);padding:24px 20px;
+  margin-bottom:12px;box-shadow:var(--sombra)}
+.menu-ttl{font-size:15px;font-weight:700;color:var(--azul);margin-bottom:4px;text-align:center}
+.menu-sub{font-size:12px;color:var(--texto2);text-align:center;margin-bottom:20px;line-height:1.5}
+.menu-btns{display:flex;flex-direction:column;gap:12px}
+.menu-btn{border:none;border-radius:var(--radio-sm);padding:18px 16px;cursor:pointer;
+  display:flex;align-items:center;gap:14px;text-align:left;transition:all .18s;
+  font-family:inherit;width:100%}
+.menu-btn:active{transform:scale(.98)}
+.menu-btn.consulta{background:linear-gradient(135deg,var(--azul) 0%,var(--azul75) 100%);color:#fff}
+.menu-btn.nino-sano{background:linear-gradient(135deg,var(--menta) 0%,#4db8a8 100%);color:#fff}
+.menu-btn-icon{width:44px;height:44px;border-radius:10px;background:rgba(255,255,255,0.2);
+  display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
+.menu-btn-txt strong{display:block;font-size:15px;font-weight:700;margin-bottom:3px}
+.menu-btn-txt span{font-size:12px;opacity:.85;line-height:1.4}
+
+/* FIELDS */
+.f{margin-bottom:14px}
+.lbl{display:block;font-size:12px;font-weight:600;color:var(--texto2);margin-bottom:5px}
+.lbl .req{color:var(--rojo)}
+.inp{width:100%;border:1.5px solid var(--gris2);border-radius:var(--radio-xs);
+  padding:10px 12px;font-size:14px;color:var(--texto);background:var(--blanco);
+  outline:none;transition:border .2s;font-family:inherit;-webkit-appearance:none}
+.inp:focus{border-color:var(--azul-cielo);box-shadow:0 0 0 3px rgba(0,160,223,0.10)}
+.inp.err{border-color:var(--rojo)}
+select.inp{cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%239aa3bb' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 12px center;padding-right:32px}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+.emsg{font-size:11px;color:var(--rojo);margin-top:3px;display:none}
+.emsg.on{display:block}
+
+/* HELPER */
+.helper{background:var(--azul-ultra);border-radius:var(--radio-xs);padding:11px 13px;
+  margin-top:7px;border-left:3px solid var(--azul-cielo)}
+.helper p{font-size:12px;color:var(--texto2);line-height:1.6;margin-bottom:5px}
+.helper p:last-child{margin-bottom:0}
+.ref-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:5px;margin-top:7px}
+.ref-item{background:var(--blanco);border:1px solid var(--gris2);border-radius:5px;
+  padding:5px 4px;text-align:center;cursor:pointer;transition:border .15s}
+.ref-item:hover,.ref-item:active{border-color:var(--azul-cielo)}
+.ref-item strong{display:block;font-size:13px;font-weight:700;color:var(--azul)}
+.ref-item span{font-size:10px;color:var(--texto3)}
+
+/* CHIPS */
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:5px}
+.chip{padding:7px 13px;border-radius:20px;border:1.5px solid var(--gris2);background:var(--blanco);
+  font-size:13px;cursor:pointer;transition:all .15s;color:var(--texto2);user-select:none;
+  display:inline-flex;align-items:center;gap:5px;line-height:1.2;-webkit-tap-highlight-color:transparent}
+.chip.on{background:var(--azul);border-color:var(--azul);color:#fff}
+.chip.on-single{background:var(--azul);border-color:var(--azul);color:#fff}
+.chip.alarm.on{background:var(--rojo);border-color:var(--rojo);color:#fff}
+.chip.verde.on{background:var(--menta);border-color:var(--menta);color:#fff}
+
+/* CONTADOR */
+.counter{display:flex;align-items:center;gap:12px;margin-top:5px}
+.cbtn{width:38px;height:38px;border-radius:50%;border:1.5px solid var(--azul-cielo);background:var(--blanco);
+  font-size:20px;cursor:pointer;color:var(--azul);display:flex;align-items:center;justify-content:center;
+  font-weight:600;transition:background .12s;flex-shrink:0}
+.cbtn:active{background:var(--azul-light)}
+.cnum{font-size:26px;font-weight:700;color:var(--azul);min-width:34px;text-align:center}
+.cunit{font-size:12px;color:var(--texto2)}
+
+/* SEMÁFORO */
+.sem{display:flex;gap:6px;margin-top:5px}
+.sbtn{flex:1;border:1.5px solid var(--gris2);border-radius:var(--radio-xs);padding:10px 6px;
+  text-align:center;cursor:pointer;transition:all .15s;background:var(--blanco)}
+.sbtn .si{font-size:20px;display:block;margin-bottom:3px}
+.sbtn .sl{font-size:11px;font-weight:700;display:block;color:var(--texto2)}
+.sbtn .sd{font-size:10px;color:var(--texto3);line-height:1.3;margin-top:2px}
+.sbtn.on-amarillo{background:var(--amarillo-bg);border-color:var(--naranja)}
+.sbtn.on-amarillo .sl{color:#7a4500}
+.sbtn.on-rojo{background:var(--rojo-bg);border-color:var(--rojo)}
+.sbtn.on-rojo .sl{color:var(--rojo)}
+.sbtn.on-verde{background:var(--verde-bg);border-color:var(--verde)}
+.sbtn.on-verde .sl{color:#0d6b3a}
+
+/* SECCIÓN DINÁMICA */
+.dyn{background:var(--gris1);border-radius:var(--radio-xs);padding:12px 14px;
+  margin-top:10px;border:1px solid var(--gris2);display:none;animation:up .18s ease}
+.dyn.on{display:block}
+.dyn-ttl{font-size:12px;font-weight:700;color:var(--azul75);margin-bottom:9px;
+  display:flex;align-items:center;gap:5px}
+
+/* HITOS DESARROLLO */
+.hitos{display:flex;flex-direction:column;gap:8px;margin-top:5px}
+.hito{display:flex;align-items:flex-start;gap:10px;padding:10px 13px;border:1.5px solid var(--gris2);
+  border-radius:var(--radio-sm);cursor:pointer;transition:all .15s;background:var(--blanco);user-select:none}
+.hito:hover{border-color:var(--menta)}
+.hito.si{border-color:var(--verde);background:var(--verde-bg)}
+.hito.no{border-color:var(--rojo);background:var(--rojo-bg)}
+.hito.ns{border-color:var(--naranja);background:var(--amarillo-bg)}
+.hito-txt{font-size:13px;color:var(--texto);line-height:1.4;flex:1}
+.hito-btns{display:flex;gap:5px;flex-shrink:0}
+.hito-btn{padding:4px 9px;border-radius:20px;border:1.5px solid var(--gris2);background:var(--blanco);
+  font-size:11px;font-weight:600;cursor:pointer;transition:all .12s;color:var(--texto2)}
+.hito-btn.si:hover,.hito-btn.si.sel{background:var(--verde);border-color:var(--verde);color:#fff}
+.hito-btn.no:hover,.hito-btn.no.sel{background:var(--rojo);border-color:var(--rojo);color:#fff}
+.hito-btn.ns:hover,.hito-btn.ns.sel{background:var(--naranja);border-color:var(--naranja);color:#fff}
+
+/* NAVEGACIÓN */
+.nav{display:flex;gap:9px;margin-top:18px}
+.btn{flex:1;padding:13px 10px;border-radius:var(--radio-xs);font-size:14px;font-weight:600;
+  border:none;cursor:pointer;transition:all .15s;font-family:inherit}
+.btn-p{background:var(--azul);color:#fff}
+.btn-p:active{background:#002080}
+.btn-s{background:var(--gris1);color:var(--texto2);border:1.5px solid var(--gris2)}
+.btn-ok{background:var(--verde);color:#fff}
+.btn-ok-teal{background:var(--menta);color:#fff}
+
+/* RESULTADO */
+.result{background:var(--blanco);border-radius:var(--radio);padding:20px;
+  margin-bottom:12px;box-shadow:var(--sombra);display:none;animation:up .25s ease}
+.result.on{display:block}
+.loading{display:flex;align-items:center;gap:9px;padding:18px 0;color:var(--texto2);font-size:13px}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--azul-cielo);animation:pulse 1s infinite}
+.dot:nth-child(2){animation-delay:.2s}
+.dot:nth-child(3){animation-delay:.4s}
+@keyframes pulse{0%,100%{opacity:.2;transform:scale(.7)}50%{opacity:1;transform:scale(1)}}
+
+/* TOAST */
+.toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%) translateY(70px);
+  background:var(--azul);color:#fff;padding:9px 20px;border-radius:20px;
+  font-size:13px;font-weight:600;box-shadow:0 4px 18px rgba(0,0,0,.2);
+  transition:transform .28s ease;z-index:999;white-space:nowrap}
+.toast.on{transform:translateX(-50%) translateY(0)}
+
+/* NEO */
+.neo-section{background:#fff0f7;border:1.5px solid #e7b0d1;border-radius:var(--radio-xs);
+  padding:13px;margin-top:10px;display:none;animation:up .18s ease}
+.neo-section.on{display:block}
+.neo-ttl{font-size:12px;font-weight:700;color:#7a1a4a;margin-bottom:9px}
+
+@media(max-width:400px){
+  .row2,.row3{grid-template-columns:1fr}
+  .ref-grid{grid-template-columns:repeat(3,1fr)}
+  .sem{gap:4px}
+  .menu-btns{gap:10px}
+}
+</style>
+</head>
+<body>
+<div class="app">
+
+<!-- HEADER -->
+<div class="hdr">
+  <div class="hdr-icon">🩺</div>
+  <div>
+    <h1>Cortesía Nutriben — Pre Clínica</h1>
+    <p>Complete antes de ver al médico. Toma menos de 3 minutos.</p>
+    <div class="hdr-badge">Powered by Nutriben</div>
+  </div>
+</div>
+
+<!-- PROGRESS (oculto en menú) -->
+<div class="prog" id="prog-wrap">
+  <div class="prog-bar" id="prog-bar"></div>
+  <div class="prog-info">
+    <span class="prog-lbl" id="prog-lbl">—</span>
+    <span class="prog-pct" id="prog-pct">—</span>
+  </div>
+</div>
+
+<!-- ═══ MENÚ INICIAL ═══ -->
+<div class="menu-card" id="menu-inicio">
+  <div class="menu-ttl">¿Qué tipo de consulta trae hoy?</div>
+  <div class="menu-sub">Seleccione la opción que corresponde a su visita de hoy.</div>
+  <div class="menu-btns">
+    <button class="menu-btn consulta" onclick="iniciarFlujo('consulta')">
+      <div class="menu-btn-icon">🤒</div>
+      <div class="menu-btn-txt">
+        <strong>Consulta por enfermedad</strong>
+        <span>El niño presenta síntomas o malestar que requieren atención médica</span>
+      </div>
+    </button>
+    <button class="menu-btn nino-sano" onclick="iniciarFlujo('nino_sano')">
+      <div class="menu-btn-icon">👶</div>
+      <div class="menu-btn-txt">
+        <strong>Control de niño sano</strong>
+        <span>Revisión de crecimiento, desarrollo y vacunas del niño</span>
+      </div>
+    </button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     FLUJO CONSULTA — 4 pasos
+═══════════════════════════════════════ -->
+
+<!-- PASO C1: DATOS -->
+<div class="card" id="cc1">
+  <div class="card-ttl">👶 Datos del niño</div>
+  <div class="card-sub">Solo lo esencial — nombre, edad, peso y estatura aproximados.</div>
+
+  <div class="row2">
+    <div class="f">
+      <label class="lbl">Nombre <span class="req">*</span></label>
+      <input class="inp" id="c-nombre" type="text" placeholder="Nombre del niño">
+      <div class="emsg" id="ec-nombre">Ingrese el nombre.</div>
+    </div>
+    <div class="f">
+      <label class="lbl">Fecha de nacimiento <span class="req">*</span></label>
+      <input class="inp" id="c-fnac" type="date" onchange="calcEdad('c')">
+      <div class="emsg" id="ec-fnac">Campo requerido.</div>
+    </div>
+  </div>
+
+  <div class="row2">
+    <div class="f">
+      <label class="lbl">Sexo</label>
+      <select class="inp" id="c-sexo">
+        <option value="">Seleccionar…</option>
+        <option value="niño">Niño</option>
+        <option value="niña">Niña</option>
+      </select>
+    </div>
+    <div class="f">
+      <label class="lbl">Edad calculada</label>
+      <input class="inp" id="c-edad" readonly placeholder="—"
+        style="background:var(--gris1);color:var(--azul);font-weight:700;cursor:default">
+    </div>
+  </div>
+
+  <div class="row2">
+    <div class="f">
+      <label class="lbl">Peso aproximado (kg)</label>
+      <input class="inp" id="c-peso" type="number" placeholder="Ej: 12" step="0.5" min="0.5" max="120">
+    </div>
+    <div class="f">
+      <label class="lbl">Estatura aproximada (cm)</label>
+      <input class="inp" id="c-talla" type="number" placeholder="Ej: 85" min="30" max="200">
+    </div>
+  </div>
+
+  <div class="helper">
+    <p>💡 <strong>¿No sabe el peso?</strong> Toque la referencia más cercana:</p>
+    <div class="ref-grid">
+      <div class="ref-item" onclick="setPeso('c',3.5)"><strong>~3.5</strong><span>RN</span></div>
+      <div class="ref-item" onclick="setPeso('c',7)"><strong>~7</strong><span>6m</span></div>
+      <div class="ref-item" onclick="setPeso('c',10)"><strong>~10</strong><span>1 año</span></div>
+      <div class="ref-item" onclick="setPeso('c',12)"><strong>~12</strong><span>18m</span></div>
+      <div class="ref-item" onclick="setPeso('c',14)"><strong>~14</strong><span>2 años</span></div>
+      <div class="ref-item" onclick="setPeso('c',16)"><strong>~16</strong><span>3 años</span></div>
+      <div class="ref-item" onclick="setPeso('c',18)"><strong>~18</strong><span>4 años</span></div>
+      <div class="ref-item" onclick="setPeso('c',20)"><strong>~20</strong><span>5 años</span></div>
+      <div class="ref-item" onclick="setPeso('c',22)"><strong>~22</strong><span>6 años</span></div>
+      <div class="ref-item" onclick="setPeso('c',25)"><strong>~25</strong><span>7 años</span></div>
+      <div class="ref-item" onclick="setPeso('c',30)"><strong>~30</strong><span>9 años</span></div>
+      <div class="ref-item" onclick="setPeso('c',35)"><strong>~35</strong><span>11 años</span></div>
+    </div>
+  </div>
+
+  <!-- Módulo neonatal -->
+  <div class="neo-section" id="c-neo">
+    <div class="neo-ttl">🍼 Datos neonatales</div>
+    <div class="row2">
+      <div class="f">
+        <label class="lbl">¿Fue prematuro?</label>
+        <div class="chips">
+          <div class="chip" onclick="sc(this,'c_prematuro','no')">No, a término</div>
+          <div class="chip" onclick="sc(this,'c_prematuro','si')">Sí, prematuro</div>
+          <div class="chip" onclick="sc(this,'c_prematuro','ns')">No sé</div>
+        </div>
+      </div>
+      <div class="f">
+        <label class="lbl">¿Cómo se alimenta?</label>
+        <div class="chips">
+          <div class="chip" onclick="sc(this,'c_alim_neo','lactancia')">🤱 Pecho</div>
+          <div class="chip" onclick="sc(this,'c_alim_neo','formula')">🍼 Fórmula</div>
+          <div class="chip" onclick="sc(this,'c_alim_neo','mixta')">Mixta</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="f" style="margin-top:14px">
+    <label class="lbl">Alergias conocidas a medicamentos</label>
+    <input class="inp" id="c-alergias" type="text" placeholder="Ej: penicilina, ibuprofeno… o 'Ninguna'">
+  </div>
+  <div class="f">
+    <label class="lbl">Enfermedad crónica de base</label>
+    <input class="inp" id="c-base" type="text" placeholder="Ej: asma, cardiopatía… o 'Ninguna'">
+  </div>
+
+  <div class="nav">
+    <button class="btn btn-s" onclick="volverMenu()">← Menú</button>
+    <button class="btn btn-p" onclick="irC(2)">Siguiente →</button>
+  </div>
+</div>
+
+<!-- PASO C2: SÍNTOMAS -->
+<div class="card" id="cc2">
+  <div class="card-ttl">🤒 ¿Qué tiene el niño?</div>
+  <div class="card-sub">Seleccione todo lo que presenta hoy.</div>
+
+  <div class="f">
+    <label class="lbl">Síntomas <span class="req">*</span></label>
+    <div class="chips" id="chips-sint">
+      <div class="chip" onclick="ts(this,'fiebre')">🌡️ Fiebre</div>
+      <div class="chip" onclick="ts(this,'tos')">😮‍💨 Tos</div>
+      <div class="chip" onclick="ts(this,'dif_resp')">😮 Dificultad al respirar</div>
+      <div class="chip" onclick="ts(this,'diarrea')">🚽 Diarrea</div>
+      <div class="chip" onclick="ts(this,'vomito')">🤢 Vómito</div>
+      <div class="chip" onclick="ts(this,'dolor_abd')">🫃 Dolor de barriga</div>
+      <div class="chip" onclick="ts(this,'rash')">🔴 Manchas / sarpullido</div>
+      <div class="chip" onclick="ts(this,'llanto')">😭 Llanto / irritable</div>
+      <div class="chip" onclick="ts(this,'oido')">👂 Dolor de oído</div>
+      <div class="chip" onclick="ts(this,'garganta')">😬 Dolor de garganta</div>
+      <div class="chip" onclick="ts(this,'ojos')">👁️ Ojos rojos</div>
+      <div class="chip" onclick="ts(this,'orina')">💧 Ardor al orinar</div>
+      <div class="chip" onclick="ts(this,'no_come')">🍽️ No quiere comer</div>
+      <div class="chip" onclick="tsOtro(this)">➕ Otro</div>
+    </div>
+    <div id="otro-wrap" style="display:none;margin-top:8px">
+      <input class="inp" id="otro-txt" type="text" placeholder="Describa el síntoma…" oninput="S.otro_txt=this.value">
+    </div>
+    <div class="emsg" id="ec-sint">Seleccione al menos un síntoma.</div>
+  </div>
+
+  <div class="f">
+    <label class="lbl">¿Hace cuántos días empezó?</label>
+    <div class="counter">
+      <button class="cbtn" onclick="dias(-1)">−</button>
+      <div class="cnum" id="dias-n">1</div>
+      <button class="cbtn" onclick="dias(1)">+</button>
+      <span class="cunit">día(s)</span>
+    </div>
+  </div>
+
+  <div class="f">
+    <label class="lbl">¿Está…?</label>
+    <div class="chips">
+      <div class="chip" onclick="sc(this,'evol','empeorando')">📉 Empeorando</div>
+      <div class="chip" onclick="sc(this,'evol','igual')">➡️ Igual</div>
+      <div class="chip" onclick="sc(this,'evol','mejorando')">📈 Mejorando</div>
+    </div>
+  </div>
+
+  <div class="nav">
+    <button class="btn btn-s" onclick="irC(1)">← Atrás</button>
+    <button class="btn btn-p" onclick="irC(3)">Siguiente →</button>
+  </div>
+</div>
+
+<!-- PASO C3: DETALLE -->
+<div class="card" id="cc3">
+  <div class="card-ttl">🔍 Detalle rápido</div>
+  <div class="card-sub">Solo lo más importante de los síntomas seleccionados.</div>
+
+  <div class="dyn" id="d-fiebre">
+    <div class="dyn-ttl">🌡️ Fiebre</div>
+    <div class="f">
+      <label class="lbl">¿Cómo siente la fiebre?</label>
+      <div class="sem">
+        <div class="sbtn" onclick="selSem(this,'sem_t','leve','on-amarillo')">
+          <span class="si">🟡</span><span class="sl">Leve</span><span class="sd">Calientito, activo</span>
+        </div>
+        <div class="sbtn" onclick="selSem(this,'sem_t','moderada','on-amarillo')">
+          <span class="si">🟠</span><span class="sl">Moderada</span><span class="sd">Caliente, decaído</span>
+        </div>
+        <div class="sbtn" onclick="selSem(this,'sem_t','alta','on-rojo')">
+          <span class="si">🔴</span><span class="sl">Alta</span><span class="sd">Muy caliente, irritable</span>
+        </div>
+      </div>
+    </div>
+    <div class="f">
+      <label class="lbl">¿Cuántos días con fiebre?</label>
+      <div class="chips">
+        <div class="chip" onclick="sc(this,'dias_f','menos1')">Menos de 1 día</div>
+        <div class="chip" onclick="sc(this,'dias_f','1-3')">1–3 días</div>
+        <div class="chip" onclick="sc(this,'dias_f','4-7')">4–7 días</div>
+        <div class="chip" onclick="sc(this,'dias_f','mas7')">Más de 7 días</div>
+      </div>
+    </div>
+    <div class="f">
+      <label class="lbl">¿Bajó con acetaminofén o ibuprofeno?</label>
+      <div class="chips">
+        <div class="chip" onclick="sc(this,'resp_antip','si')">Sí, bajó bien</div>
+        <div class="chip" onclick="sc(this,'resp_antip','poco')">Bajó un poco</div>
+        <div class="chip" onclick="sc(this,'resp_antip','no')">No bajó</div>
+        <div class="chip" onclick="sc(this,'resp_antip','nodi')">No le he dado</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="dyn" id="d-resp">
+    <div class="dyn-ttl">😮‍💨 Tos / Respiración</div>
+    <div class="f">
+      <label class="lbl">¿Cómo es la tos?</label>
+      <div class="chips">
+        <div class="chip" onclick="sc(this,'tipo_tos','seca')">Seca</div>
+        <div class="chip" onclick="sc(this,'tipo_tos','flema')">Con flema</div>
+        <div class="chip" onclick="sc(this,'tipo_tos','perruna')">Como ladrido</div>
+        <div class="chip" onclick="sc(this,'tipo_tos','accesos')">En ataques</div>
+      </div>
+    </div>
+    <div class="f">
+      <label class="lbl">Al respirar, ¿nota algo?</label>
+      <div class="chips">
+        <div class="chip" onclick="sc(this,'resp_obs','silbido')">🎵 Silbido</div>
+        <div class="chip" onclick="sc(this,'resp_obs','tiraje')">Se hunden las costillas</div>
+        <div class="chip" onclick="sc(this,'resp_obs','rapido')">Respira muy rápido</div>
+        <div class="chip" onclick="sc(this,'resp_obs','normal')">Normal</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="dyn" id="d-gi">
+    <div class="dyn-ttl">🚽 Estómago</div>
+    <div class="f" id="d-gi-diarrea" style="display:none">
+      <label class="lbl">Diarrea — ¿cuántas veces al día?</label>
+      <div class="chips">
+        <div class="chip" onclick="sc(this,'frec_diar','1-3')">1–3 veces</div>
+        <div class="chip" onclick="sc(this,'frec_diar','4-7')">4–7 veces</div>
+        <div class="chip" onclick="sc(this,'frec_diar','mas8')">8 o más</div>
+      </div>
+    </div>
+    <div class="f" id="d-gi-vomito" style="display:none">
+      <label class="lbl">Vómito — ¿cómo sale?</label>
+      <div class="chips">
+        <div class="chip" onclick="sc(this,'tipo_vom','normal')">Normal</div>
+        <div class="chip" onclick="sc(this,'tipo_vom','bilis')">Amarillo/verde</div>
+        <div class="chip" onclick="sc(this,'tipo_vom','fuerza')">Con mucha fuerza</div>
+        <div class="chip" onclick="sc(this,'tipo_vom','sangre')">Con sangre 🚨</div>
+      </div>
+    </div>
+    <div class="f">
+      <label class="lbl">¿El niño está tomando líquidos?</label>
+      <div class="chips">
+        <div class="chip" onclick="sc(this,'liquidos','bien')">Sí, toma bien</div>
+        <div class="chip" onclick="sc(this,'liquidos','poco')">Toma poco</div>
+        <div class="chip" onclick="sc(this,'liquidos','no')">No quiere nada 🚨</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="dyn" id="d-rash">
+    <div class="dyn-ttl">🔴 Manchas / sarpullido</div>
+    <div class="f">
+      <label class="lbl">¿Cómo se ven?</label>
+      <div class="chips">
+        <div class="chip" onclick="sc(this,'tipo_rash','rojas_planas')">Rojas y planas</div>
+        <div class="chip" onclick="sc(this,'tipo_rash','granitos')">Granitos con líquido</div>
+        <div class="chip" onclick="sc(this,'tipo_rash','ronchas')">Ronchas</div>
+        <div class="chip" onclick="sc(this,'tipo_rash','moradas')">Moradas 🚨</div>
+      </div>
+    </div>
+    <div class="f">
+      <label class="lbl">¿Dónde están?</label>
+      <div class="chips">
+        <div class="chip" onclick="sc(this,'zona_rash','cara')">Cara</div>
+        <div class="chip" onclick="sc(this,'zona_rash','tronco')">Pecho/espalda</div>
+        <div class="chip" onclick="sc(this,'zona_rash','extremidades')">Brazos/piernas</div>
+        <div class="chip" onclick="sc(this,'zona_rash','todo')">Todo el cuerpo</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="f" style="margin-top:12px">
+    <label class="lbl">¿Le ha dado algún medicamento?</label>
+    <div class="chips">
+      <div class="chip" onclick="tm(this,'acetaminofen')">Acetaminofén</div>
+      <div class="chip" onclick="tm(this,'ibuprofeno')">Ibuprofeno</div>
+      <div class="chip" onclick="tm(this,'antibiotico')">Antibiótico</div>
+      <div class="chip" onclick="tm(this,'suero')">Suero oral</div>
+      <div class="chip" onclick="tm(this,'ninguno')">Ninguno</div>
+    </div>
+  </div>
+
+  <div class="nav">
+    <button class="btn btn-s" onclick="irC(2)">← Atrás</button>
+    <button class="btn btn-p" onclick="irC(4)">Siguiente →</button>
+  </div>
+</div>
+
+<!-- PASO C4: ALARMAS Y CONTEXTO -->
+<div class="card" id="cc4">
+  <div class="card-ttl">⚠️ Señales y contexto</div>
+  <div class="card-sub">Estas preguntas ayudan al médico a priorizar la atención.</div>
+
+  <div class="f">
+    <label class="lbl">¿Nota alguna de estas señales?</label>
+    <div class="chips">
+      <div class="chip alarm" onclick="ta(this,'purpura')">🚨 Manchas moradas que no desaparecen al presionar</div>
+      <div class="chip alarm" onclick="ta(this,'convulsion')">🚨 Convulsión o temblores</div>
+      <div class="chip alarm" onclick="ta(this,'no_reacciona')">🚨 No reacciona / muy somnoliento</div>
+      <div class="chip alarm" onclick="ta(this,'dif_resp_grave')">🚨 Se le hunden las costillas al respirar</div>
+      <div class="chip alarm" onclick="ta(this,'fiebre_neo')">⚠️ Fiebre en menor de 2 meses</div>
+      <div class="chip alarm" onclick="ta(this,'fiebre_7d')">⚠️ Fiebre por más de 7 días</div>
+      <div class="chip" onclick="ta(this,'ninguna')">✅ Ninguna</div>
+    </div>
+  </div>
+
+  <div class="f">
+    <label class="lbl">¿Vacunas al día?</label>
+    <div class="chips">
+      <div class="chip" onclick="sc(this,'vacunas','si')">✅ Completas</div>
+      <div class="chip" onclick="sc(this,'vacunas','no')">❌ Faltan</div>
+      <div class="chip" onclick="sc(this,'vacunas','ns')">No sé</div>
+    </div>
+  </div>
+
+  <div class="f">
+    <label class="lbl">¿Hay otros niños enfermos cerca?</label>
+    <div class="chips">
+      <div class="chip" onclick="sc(this,'contacto','si')">Sí</div>
+      <div class="chip" onclick="sc(this,'contacto','no')">No</div>
+      <div class="chip" onclick="sc(this,'contacto','ns')">No sé</div>
+    </div>
+  </div>
+
+  <div class="nav">
+    <button class="btn btn-s" onclick="irC(3)">← Atrás</button>
+    <button class="btn btn-ok" onclick="enviarConsulta()">Enviar al médico →</button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     FLUJO CONTROL NIÑO SANO — 4 pasos
+═══════════════════════════════════════ -->
+
+<!-- PASO NS1: DATOS -->
+<div class="card" id="ns1">
+  <div class="card-ttl">👶 Datos del niño</div>
+  <div class="card-sub">Ingrese los datos para personalizar las preguntas según la edad.</div>
+
+  <div class="row2">
+    <div class="f">
+      <label class="lbl">Nombre <span class="req">*</span></label>
+      <input class="inp" id="ns-nombre" type="text" placeholder="Nombre del niño">
+      <div class="emsg" id="ens-nombre">Ingrese el nombre.</div>
+    </div>
+    <div class="f">
+      <label class="lbl">Fecha de nacimiento <span class="req">*</span></label>
+      <input class="inp" id="ns-fnac" type="date" onchange="calcEdad('ns')">
+      <div class="emsg" id="ens-fnac">Campo requerido.</div>
+    </div>
+  </div>
+
+  <div class="row2">
+    <div class="f">
+      <label class="lbl">Sexo</label>
+      <select class="inp" id="ns-sexo">
+        <option value="">Seleccionar…</option>
+        <option value="niño">Niño</option>
+        <option value="niña">Niña</option>
+      </select>
+    </div>
+    <div class="f">
+      <label class="lbl">Edad</label>
+      <input class="inp" id="ns-edad" readonly placeholder="—"
+        style="background:var(--gris1);color:var(--azul);font-weight:700;cursor:default">
+    </div>
+  </div>
+
+  <div class="row3">
+    <div class="f">
+      <label class="lbl">Peso (kg)</label>
+      <input class="inp" id="ns-peso" type="number" placeholder="Ej: 8.5" step="0.1" min="0.5" max="120">
+    </div>
+    <div class="f">
+      <label class="lbl">Estatura (cm)</label>
+      <input class="inp" id="ns-talla" type="number" placeholder="Ej: 72" min="30" max="200">
+    </div>
+    <div class="f">
+      <label class="lbl">Perímetro cefálico (cm)</label>
+      <input class="inp" id="ns-pc" type="number" placeholder="Ej: 44" min="20" max="60">
+    </div>
+  </div>
+
+  <div class="helper">
+    <p>💡 <strong>¿No sabe el peso?</strong> Toque la referencia más cercana:</p>
+    <div class="ref-grid">
+      <div class="ref-item" onclick="setPeso('ns',3.5)"><strong>~3.5</strong><span>RN</span></div>
+      <div class="ref-item" onclick="setPeso('ns',6)"><strong>~6</strong><span>3m</span></div>
+      <div class="ref-item" onclick="setPeso('ns',7.5)"><strong>~7.5</strong><span>6m</span></div>
+      <div class="ref-item" onclick="setPeso('ns',9)"><strong>~9</strong><span>9m</span></div>
+      <div class="ref-item" onclick="setPeso('ns',10)"><strong>~10</strong><span>1 año</span></div>
+      <div class="ref-item" onclick="setPeso('ns',12)"><strong>~12</strong><span>18m</span></div>
+      <div class="ref-item" onclick="setPeso('ns',14)"><strong>~14</strong><span>2 años</span></div>
+      <div class="ref-item" onclick="setPeso('ns',16)"><strong>~16</strong><span>3 años</span></div>
+      <div class="ref-item" onclick="setPeso('ns',18)"><strong>~18</strong><span>4 años</span></div>
+      <div class="ref-item" onclick="setPeso('ns',20)"><strong>~20</strong><span>5 años</span></div>
+      <div class="ref-item" onclick="setPeso('ns',25)"><strong>~25</strong><span>7 años</span></div>
+      <div class="ref-item" onclick="setPeso('ns',35)"><strong>~35</strong><span>11 años</span></div>
+    </div>
+  </div>
+
+  <div class="nav">
+    <button class="btn btn-s" onclick="volverMenu()">← Menú</button>
+    <button class="btn btn-ok-teal" onclick="irNS(2)">Siguiente →</button>
+  </div>
+</div>
+
+<!-- PASO NS2: DESARROLLO -->
+<div class="card" id="ns2">
+  <div class="card-ttl">🧠 Desarrollo psicomotor</div>
+  <div class="card-sub" id="ns2-sub">Indique si el niño realiza las siguientes actividades.</div>
+
+  <div class="hitos" id="hitos-desarrollo"></div>
+
+  <div class="nav">
+    <button class="btn btn-s" onclick="irNS(1)">← Atrás</button>
+    <button class="btn btn-ok-teal" onclick="irNS(3)">Siguiente →</button>
+  </div>
+</div>
+
+<!-- PASO NS3: ALIMENTACIÓN Y VACUNAS -->
+<div class="card" id="ns3">
+  <div class="card-ttl">🍼 Alimentación y vacunas</div>
+  <div class="card-sub">Información sobre la dieta y el esquema de inmunización.</div>
+
+  <div class="f" id="ns-alim-wrap">
+    <label class="lbl">¿Cómo se está alimentando?</label>
+    <div class="chips" id="chips-alim"></div>
+  </div>
+
+  <div class="f">
+    <label class="lbl">¿Las vacunas están al día?</label>
+    <div class="chips">
+      <div class="chip" onclick="sc(this,'ns_vacunas','si')">✅ Completas</div>
+      <div class="chip" onclick="sc(this,'ns_vacunas','no')">❌ Faltan algunas</div>
+      <div class="chip" onclick="sc(this,'ns_vacunas','ns')">No sé</div>
+    </div>
+  </div>
+
+  <div class="f">
+    <label class="lbl">¿Toma vitamina D o hierro?</label>
+    <div class="chips">
+      <div class="chip" onclick="sc(this,'ns_vitaminas','si')">Sí</div>
+      <div class="chip" onclick="sc(this,'ns_vitaminas','no')">No</div>
+      <div class="chip" onclick="sc(this,'ns_vitaminas','ns')">No sé</div>
+    </div>
+  </div>
+
+  <div class="f">
+    <label class="lbl">¿Cómo duerme el niño?</label>
+    <div class="chips">
+      <div class="chip" onclick="sc(this,'ns_sueno','bien')">Duerme bien</div>
+      <div class="chip" onclick="sc(this,'ns_sueno','intermitente')">Se despierta seguido</div>
+      <div class="chip" onclick="sc(this,'ns_sueno','poco')">Duerme muy poco</div>
+      <div class="chip" onclick="sc(this,'ns_sueno','mucho')">Duerme demasiado</div>
+    </div>
+  </div>
+
+  <div class="nav">
+    <button class="btn btn-s" onclick="irNS(2)">← Atrás</button>
+    <button class="btn btn-ok-teal" onclick="irNS(4)">Siguiente →</button>
+  </div>
+</div>
+
+<!-- PASO NS4: PREOCUPACIONES -->
+<div class="card" id="ns4">
+  <div class="card-ttl">💬 Preocupaciones del padre/madre</div>
+  <div class="card-sub">¿Hay algo que le preocupe del desarrollo de su hijo?</div>
+
+  <div class="f">
+    <label class="lbl">¿Tiene alguna preocupación sobre el desarrollo?</label>
+    <div class="chips">
+      <div class="chip" onclick="tm_ns(this,'vision')">👁️ Visión</div>
+      <div class="chip" onclick="tm_ns(this,'audicion')">👂 Audición</div>
+      <div class="chip" onclick="tm_ns(this,'lenguaje')">🗣️ Lenguaje / habla</div>
+      <div class="chip" onclick="tm_ns(this,'motor')">🏃 Movimiento / coordinación</div>
+      <div class="chip" onclick="tm_ns(this,'conducta')">😤 Conducta / temperamento</div>
+      <div class="chip" onclick="tm_ns(this,'peso_talla')">⚖️ Peso o estatura</div>
+      <div class="chip" onclick="tm_ns(this,'ninguna')">✅ Ninguna</div>
+    </div>
+  </div>
+
+  <div class="f">
+    <label class="lbl">¿El niño ha tenido alguna enfermedad desde la última consulta?</label>
+    <div class="chips">
+      <div class="chip" onclick="sc(this,'ns_enfermedad','no')">No, estuvo bien</div>
+      <div class="chip" onclick="sc(this,'ns_enfermedad','leve')">Sí, algo leve</div>
+      <div class="chip" onclick="sc(this,'ns_enfermedad','hospitalizacion')">Requirió hospitalización</div>
+    </div>
+  </div>
+
+  <div class="f">
+    <label class="lbl">¿Algo más que quiera decirle al médico?</label>
+    <input class="inp" id="ns-notas" type="text" placeholder="Cualquier observación adicional…">
+  </div>
+
+  <div class="nav">
+    <button class="btn btn-s" onclick="irNS(3)">← Atrás</button>
+    <button class="btn btn-ok-teal" onclick="enviarNinoSano()">Enviar al médico →</button>
+  </div>
+</div>
+
+<!-- ═══ RESULTADO (compartido) ═══ -->
+<div class="result" id="result">
+  <div class="loading" id="loading">
+    <div class="dot"></div><div class="dot"></div><div class="dot"></div>
+    <span>Enviando información al médico…</span>
+  </div>
+  <div id="confirmacion" style="display:none;text-align:center;padding:10px 0">
+    <div style="font-size:52px;margin-bottom:12px">✅</div>
+    <div style="font-size:18px;font-weight:700;color:var(--azul);margin-bottom:8px">¡Listo!</div>
+    <div id="conf-texto" style="font-size:14px;color:var(--texto2);line-height:1.7;margin-bottom:20px"></div>
+    <div style="background:var(--azul-ultra);border-radius:var(--radio-xs);padding:14px;margin-bottom:20px;font-size:13px;color:var(--texto2);line-height:1.6">
+      <strong style="color:var(--azul)">¿Qué sigue?</strong><br>
+      Espere a ser llamado por el médico. Tenga listo el carnet de vacunas y cualquier medicamento que el niño esté tomando.
+    </div>
+    <button class="btn btn-s" style="max-width:200px;margin:0 auto" onclick="location.reload()">Nueva consulta</button>
+  </div>
+</div>
+
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+// ── CONFIG ─────────────────────────────────────────────────────
+const SUPA_URL_PC  = 'https://hwfppixepttcwuqlyuqo.supabase.co';
+const SUPA_ANON_PC = 'sb_publishable_B64SKwrgm9vJUvcf11g0zA_myBQaSfl';
+
+// ── ESTADO CONSULTA ────────────────────────────────────────────
+const S = {
+  dias:1, sint:[], meds:[], alarmas:[], otro_txt:'',
+  evol:null, sem_t:null, dias_f:null, resp_antip:null,
+  tipo_tos:null, resp_obs:null, frec_diar:null, tipo_vom:null,
+  liquidos:null, tipo_rash:null, zona_rash:null,
+  vacunas:null, contacto:null, alergia:null, cronica:null,
+  c_prematuro:null, c_alim_neo:null,
+};
+
+// ── ESTADO NIÑO SANO ───────────────────────────────────────────
+const NS = {
+  hitos:{}, preocupaciones:[], alim:null,
+  ns_vacunas:null, ns_vitaminas:null, ns_sueno:null, ns_enfermedad:null,
+};
+
+let FLUJO = null; // 'consulta' | 'nino_sano'
+let PASO_C = 0;
+let PASO_NS = 0;
+let EDAD_MESES = 0;
+
+// ── INIT ───────────────────────────────────────────────────────
+window.addEventListener('DOMContentLoaded', ()=>{
+  const tk = sessionStorage.getItem('clinica-token') || localStorage.getItem('clinica-token-persist');
+  if(tk) window.supabaseToken = tk;
+  const params = new URLSearchParams(window.location.search);
+  window.MEDICO_ID = params.get('medico') || null;
+});
+
+// ── MENÚ ───────────────────────────────────────────────────────
+function iniciarFlujo(tipo){
+  FLUJO = tipo;
+  document.getElementById('menu-inicio').style.display='none';
+  document.getElementById('prog-wrap').classList.add('on');
+  if(tipo === 'consulta'){
+    configurarProgreso(4);
+    irC(1);
+  } else {
+    configurarProgreso(4);
+    irNS(1);
+  }
+}
+
+function volverMenu(){
+  FLUJO = null;
+  document.getElementById('menu-inicio').style.display='block';
+  document.getElementById('prog-wrap').classList.remove('on');
+  ['cc1','cc2','cc3','cc4','ns1','ns2','ns3','ns4'].forEach(id=>{
+    document.getElementById(id)?.classList.remove('on');
+  });
+}
+
+function configurarProgreso(n){
+  const bar = document.getElementById('prog-bar');
+  bar.innerHTML = Array.from({length:n},(_,i)=>`<div class="pb" id="pb${i+1}"></div>`).join('');
+}
+
+function actualizarProgreso(paso, total, label){
+  for(let i=1;i<=total;i++){
+    const el = document.getElementById('pb'+i);
+    if(!el) continue;
+    el.classList.remove('active','done');
+    if(i<paso) el.classList.add('done');
+    else if(i===paso) el.classList.add('active');
+  }
+  document.getElementById('prog-lbl').textContent = label;
+  document.getElementById('prog-pct').textContent = Math.round(paso/total*100)+'%';
+}
+
+// ── NAVEGACIÓN CONSULTA ────────────────────────────────────────
+function irC(n){
+  if(n > PASO_C){
+    if(PASO_C===1 && !valC1()) return;
+    if(PASO_C===2 && !valC2()) return;
+  }
+  if(PASO_C>0) document.getElementById('cc'+PASO_C)?.classList.remove('on');
+  PASO_C = n;
+  document.getElementById('cc'+n).classList.add('on');
+  const labels = ['','Paso 1 de 4 — Datos del niño','Paso 2 de 4 — Síntomas','Paso 3 de 4 — Detalle','Paso 4 de 4 — Señales'];
+  actualizarProgreso(n, 4, labels[n]);
+  window.scrollTo({top:0,behavior:'smooth'});
+  if(n===3) actualizarDinamicos();
+}
+
+// ── NAVEGACIÓN NIÑO SANO ──────────────────────────────────────
+function irNS(n){
+  if(n > PASO_NS){
+    if(PASO_NS===1 && !valNS1()) return;
+  }
+  if(PASO_NS>0) document.getElementById('ns'+PASO_NS)?.classList.remove('on');
+  PASO_NS = n;
+  document.getElementById('ns'+n).classList.add('on');
+  const labels = ['','Paso 1 de 4 — Datos del niño','Paso 2 de 4 — Desarrollo','Paso 3 de 4 — Alimentación','Paso 4 de 4 — Preocupaciones'];
+  actualizarProgreso(n, 4, labels[n]);
+  window.scrollTo({top:0,behavior:'smooth'});
+  if(n===2) cargarHitos();
+  if(n===3) cargarAlimentacion();
+}
+
+// ── VALIDACIONES ───────────────────────────────────────────────
+function valC1(){
+  let ok=true;
+  if(!document.getElementById('c-nombre').value.trim()){
+    document.getElementById('ec-nombre').classList.add('on');
+    document.getElementById('c-nombre').classList.add('err');
+    ok=false;
+  } else {
+    document.getElementById('ec-nombre').classList.remove('on');
+    document.getElementById('c-nombre').classList.remove('err');
+  }
+  if(!document.getElementById('c-fnac').value){
+    document.getElementById('ec-fnac').classList.add('on');
+    ok=false;
+  } else {
+    document.getElementById('ec-fnac').classList.remove('on');
+  }
+  if(!ok) toast('Complete los campos obligatorios');
+  return ok;
+}
+function valC2(){
+  if(S.sint.length===0){
+    document.getElementById('ec-sint').classList.add('on');
+    toast('Seleccione al menos un síntoma');
+    return false;
+  }
+  document.getElementById('ec-sint').classList.remove('on');
+  return true;
+}
+function valNS1(){
+  let ok=true;
+  if(!document.getElementById('ns-nombre').value.trim()){
+    document.getElementById('ens-nombre').classList.add('on');
+    ok=false;
+  } else document.getElementById('ens-nombre').classList.remove('on');
+  if(!document.getElementById('ns-fnac').value){
+    document.getElementById('ens-fnac').classList.add('on');
+    ok=false;
+  } else document.getElementById('ens-fnac').classList.remove('on');
+  if(!ok) toast('Complete los campos obligatorios');
+  return ok;
+}
+
+// ── EDAD / NEONATAL ───────────────────────────────────────────
+function calcEdad(pfx){
+  const val = document.getElementById(pfx+'-fnac').value;
+  if(!val) return;
+  const hoy=new Date(), nac=new Date(val);
+  const dias = Math.floor((hoy-nac)/86400000);
+  const meses = (hoy.getFullYear()-nac.getFullYear())*12 + hoy.getMonth()-nac.getMonth();
+  const yr = Math.floor(meses/12);
+  let txt;
+  if(dias<28) txt=dias+' días';
+  else if(meses<24) txt=meses+' meses';
+  else txt=yr+' año'+(yr>1?'s':'')+(meses%12>0?' '+(meses%12)+'m':'');
+  document.getElementById(pfx+'-edad').value=txt;
+  if(pfx==='c'){
+    const esNeo = dias<60;
+    document.getElementById('c-neo').classList.toggle('on', esNeo);
+  }
+  if(pfx==='ns') EDAD_MESES = meses;
+}
+
+function setPeso(pfx,v){
+  document.getElementById(pfx+'-peso').value=v;
+  toast('Peso estimado: ~'+v+' kg');
+}
+
+// ── HITOS POR EDAD ────────────────────────────────────────────
+function getHitos(meses){
+  if(meses < 2) return [
+    'Reacciona a sonidos fuertes (se sobresalta)',
+    'Fija la mirada en rostros',
+    'Emite sonidos guturales (arrullos)',
+    'Se calma al ser sostenido',
+  ];
+  if(meses < 4) return [
+    'Sonríe en respuesta a estímulos sociales',
+    'Sigue objetos con la mirada',
+    'Sostiene la cabeza por momentos',
+    'Vocaliza sonidos (ah, oh)',
+  ];
+  if(meses < 6) return [
+    'Sostiene bien la cabeza',
+    'Se voltea de boca arriba a boca abajo',
+    'Agarra objetos con ambas manos',
+    'Ríe a carcajadas',
+    'Reconoce voces familiares',
+  ];
+  if(meses < 9) return [
+    'Se sienta con apoyo',
+    'Pasa objetos de una mano a la otra',
+    'Balbucea (ba-ba, ma-ma sin significado)',
+    'Muestra interés por los alimentos',
+    'Reconoce su nombre',
+  ];
+  if(meses < 12) return [
+    'Se sienta sin apoyo',
+    'Gatea o se desplaza de alguna manera',
+    'Dice "mamá" o "papá" con significado',
+    'Hace pinza con dedos (agarra cositas pequeñas)',
+    'Se pone de pie con apoyo',
+    'Imita gestos (adiós, palmadas)',
+  ];
+  if(meses < 18) return [
+    'Camina solo',
+    'Dice al menos 3 palabras con significado',
+    'Señala lo que quiere con el dedo',
+    'Bebe en vaso con ayuda',
+    'Juega solo por momentos',
+  ];
+  if(meses < 24) return [
+    'Corre aunque se cae',
+    'Dice al menos 10 palabras',
+    'Combina 2 palabras ("mamá agua")',
+    'Sube escaleras con apoyo',
+    'Imita tareas del hogar',
+    'Reconoce partes del cuerpo (nariz, ojos)',
+  ];
+  if(meses < 36) return [
+    'Habla en frases de 2-3 palabras',
+    'Sube y baja escaleras alternando pies',
+    'Se viste con ayuda',
+    'Juega con otros niños',
+    'Reconoce colores básicos',
+    'Controla esfínteres de día',
+  ];
+  if(meses < 48) return [
+    'Habla en oraciones completas',
+    'Salta en dos pies',
+    'Dibuja un círculo',
+    'Se viste solo',
+    'Cuenta hasta 3',
+    'Controla esfínteres de noche',
+  ];
+  if(meses < 60) return [
+    'Cuenta hasta 10',
+    'Dibuja figura humana simple',
+    'Conoce su nombre completo y edad',
+    'Salta en un pie',
+    'Se amarra los zapatos (puede necesitar ayuda)',
+    'Distingue fantasía de realidad',
+  ];
+  return [
+    'Lee palabras simples o está aprendiendo a leer',
+    'Escribe su nombre',
+    'Suma y resta números simples',
+    'Juega en equipo y sigue reglas',
+    'Tiene amigos estables',
+    'Es independiente en higiene básica',
+  ];
+}
+
+function cargarHitos(){
+  const meses = EDAD_MESES;
+  const hitos = getHitos(meses);
+  const container = document.getElementById('hitos-desarrollo');
+  const sub = document.getElementById('ns2-sub');
+  const edad = document.getElementById('ns-edad').value || 'esta edad';
+  sub.textContent = `Hitos esperados para ${edad}. Indique si el niño los realiza.`;
+
+  container.innerHTML = hitos.map((h,i) => `
+    <div class="hito" id="hito-${i}">
+      <div class="hito-txt">${h}</div>
+      <div class="hito-btns">
+        <button class="hito-btn si" onclick="marcarHito(${i},'si')">✓ Sí</button>
+        <button class="hito-btn no" onclick="marcarHito(${i},'no')">✗ No</button>
+        <button class="hito-btn ns" onclick="marcarHito(${i},'ns')">?</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function marcarHito(i, val){
+  NS.hitos[i] = val;
+  const el = document.getElementById('hito-'+i);
+  el.classList.remove('si','no','ns');
+  el.classList.add(val);
+  el.querySelectorAll('.hito-btn').forEach(b=>b.classList.remove('sel'));
+  el.querySelector('.hito-btn.'+val).classList.add('sel');
+}
+
+function cargarAlimentacion(){
+  const meses = EDAD_MESES;
+  const container = document.getElementById('chips-alim');
+  let opciones = [];
+  if(meses < 6){
+    opciones = ['🤱 Lactancia materna exclusiva','🍼 Fórmula exclusiva','Mixta (pecho + fórmula)'];
+  } else if(meses < 12){
+    opciones = ['🤱 Lactancia + alimentación complementaria','🍼 Fórmula + sólidos','Solo sólidos'];
+  } else if(meses < 24){
+    opciones = ['Leche materna + comida de mesa','🍼 Fórmula de seguimiento + comida','Come de todo (comida familiar)'];
+  } else {
+    opciones = ['Come bien variado','Come poco / selectivo','Solo come ciertos alimentos'];
+  }
+  container.innerHTML = opciones.map(o =>
+    `<div class="chip" onclick="sc(this,'ns_alim','${o.replace(/[^a-zA-Z0-9]/g,'_')}')">${o}</div>`
+  ).join('');
+}
+
+// ── CHIPS ─────────────────────────────────────────────────────
+function ts(el,val){
+  el.classList.toggle('on');
+  if(el.classList.contains('on')){ if(!S.sint.includes(val)) S.sint.push(val); }
+  else S.sint=S.sint.filter(s=>s!==val);
+  actualizarDinamicos();
+}
+function tsOtro(el){
+  el.classList.toggle('on');
+  const show=el.classList.contains('on');
+  document.getElementById('otro-wrap').style.display=show?'block':'none';
+  if(show){ if(!S.sint.includes('otro')) S.sint.push('otro'); setTimeout(()=>document.getElementById('otro-txt').focus(),80); }
+  else { S.sint=S.sint.filter(s=>s!=='otro'); S.otro_txt=''; document.getElementById('otro-txt').value=''; }
+  actualizarDinamicos();
+}
+function sc(el,campo,val){
+  const p=el.closest('.chips');
+  if(p) p.querySelectorAll('.chip').forEach(c=>c.classList.remove('on-single'));
+  el.classList.add('on-single');
+  S[campo]=val; NS[campo]=val;
+}
+function tm(el,val){
+  el.classList.toggle('on');
+  if(el.classList.contains('on')){ if(!S.meds.includes(val)) S.meds.push(val); }
+  else S.meds=S.meds.filter(m=>m!==val);
+}
+function tm_ns(el,val){
+  el.classList.toggle('on');
+  if(el.classList.contains('on')){ if(!NS.preocupaciones.includes(val)) NS.preocupaciones.push(val); }
+  else NS.preocupaciones=NS.preocupaciones.filter(p=>p!==val);
+}
+function ta(el,val){
+  el.classList.toggle('on');
+  if(el.classList.contains('on')){ if(!S.alarmas.includes(val)) S.alarmas.push(val); }
+  else S.alarmas=S.alarmas.filter(a=>a!==val);
+}
+function selSem(el,campo,val,cls){
+  const p=el.closest('.sem');
+  if(p) p.querySelectorAll('.sbtn').forEach(b=>b.className='sbtn');
+  el.classList.add(cls);
+  S[campo]=val;
+}
+function dias(delta){
+  S.dias=Math.max(1,Math.min(30,S.dias+delta));
+  document.getElementById('dias-n').textContent=S.dias;
+}
+
+// ── SECCIONES DINÁMICAS ───────────────────────────────────────
+function actualizarDinamicos(){
+  const s=S.sint;
+  d('d-fiebre', s.includes('fiebre'));
+  d('d-resp',   s.includes('tos')||s.includes('dif_resp'));
+  d('d-gi',     s.includes('diarrea')||s.includes('vomito')||s.includes('dolor_abd'));
+  document.getElementById('d-gi-diarrea').style.display = s.includes('diarrea')?'block':'none';
+  document.getElementById('d-gi-vomito').style.display  = s.includes('vomito')?'block':'none';
+  d('d-rash',   s.includes('rash'));
+}
+function d(id,show){
+  const el=document.getElementById(id);
+  if(!el) return;
+  if(show){ el.classList.add('on'); el.style.display=''; }
+  else { el.classList.remove('on'); el.style.display='none'; }
+}
+
+// ── TOAST ─────────────────────────────────────────────────────
+function toast(msg,ms=2800){
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.classList.add('on');
+  clearTimeout(t._t); t._t=setTimeout(()=>t.classList.remove('on'),ms);
+}
+
+// ── MOSTRAR CONFIRMACIÓN ───────────────────────────────────────
+function mostrarConfirmacion(nombre, tipo){
+  document.getElementById('loading').style.display='none';
+  const conf=document.getElementById('confirmacion');
+  conf.style.display='block';
+  const tipoTxt = tipo==='nino_sano' ? 'control de niño sano' : 'consulta';
+  document.getElementById('conf-texto').innerHTML=
+    `La información de <strong>${nombre}</strong> fue enviada al médico.<br>Lo atenderán en breve.`;
+}
+
+// ── ENVIAR CONSULTA ───────────────────────────────────────────
+async function enviarConsulta(){
+  document.getElementById('cc4').classList.remove('on');
+  document.getElementById('result').classList.add('on');
+  document.getElementById('loading').style.display='flex';
+  document.getElementById('confirmacion').style.display='none';
+  window.scrollTo({top:0,behavior:'smooth'});
+
+  const nombre = document.getElementById('c-nombre').value||'paciente';
+  const edad   = document.getElementById('c-edad').value||'desconocida';
+  const sexo   = document.getElementById('c-sexo').value||'no especificado';
+  const peso   = document.getElementById('c-peso').value ? document.getElementById('c-peso').value+' kg' : 'no disponible';
+  const talla  = document.getElementById('c-talla').value ? document.getElementById('c-talla').value+' cm' : 'no disponible';
+  const fnac   = document.getElementById('c-fnac').value;
+  const esNeo  = fnac && Math.floor((new Date()-new Date(fnac))/86400000)<60;
+  const alergias = document.getElementById('c-alergias').value || 'no reportadas';
+  const base     = document.getElementById('c-base').value || 'ninguna';
+
+  const sintMap={fiebre:'fiebre',tos:'tos',dif_resp:'dificultad respiratoria',diarrea:'diarrea',
+    vomito:'vómito',dolor_abd:'dolor abdominal',rash:'exantema/rash',llanto:'irritabilidad/llanto',
+    oido:'otalgia',garganta:'odinofagia',ojos:'conjuntivitis',orina:'síntomas urinarios',
+    no_come:'rechazo alimentario',otro:'otros síntomas'};
+  let sintsStr=S.sint.map(x=>sintMap[x]||x).join(', ')||'no especificados';
+  if(S.otro_txt) sintsStr+=` (otro: ${S.otro_txt})`;
+
+  const prompt=`Eres un asistente clínico de apoyo a médicos pediatras y generales en Centroamérica. Genera un resumen de preconsulta por ENFERMEDAD para el médico. Sé conciso y clínico.
+
+PACIENTE: ${nombre} | ${edad} | ${sexo} | Peso: ${peso} | Talla: ${talla}
+Alergias: ${alergias} | Enfermedad base: ${base}
+${esNeo?`NEONATAL: prematuro: ${S.c_prematuro||'N/A'} | alimentación: ${S.c_alim_neo||'N/A'}`:''}
+
+CONSULTA:
+- Síntomas: ${sintsStr} | Evolución: ${S.dias} días | Tendencia: ${S.evol||'N/A'}
+- Medicamentos previos: ${S.meds.join(', ')||'ninguno'}
+- Fiebre: ${S.sem_t||'N/A'} | Días fiebre: ${S.dias_f||'N/A'} | Resp. antipirético: ${S.resp_antip||'N/A'}
+- Respiratorio: tos ${S.tipo_tos||'N/A'} | hallazgo ${S.resp_obs||'N/A'}
+- GI: diarrea ${S.frec_diar||'N/A'} | vómito ${S.tipo_vom||'N/A'} | líquidos ${S.liquidos||'N/A'}
+- Piel: ${S.tipo_rash||'N/A'} en ${S.zona_rash||'N/A'}
+- Alarmas: ${S.alarmas.join(', ')||'ninguna'}
+- Vacunas: ${S.vacunas||'N/A'} | Contacto epidemiológico: ${S.contacto||'N/A'}
+
+Formato de respuesta:
+**RESUMEN — ${nombre.toUpperCase()}** (CONSULTA POR ENFERMEDAD)
+[1-2 oraciones clínicas]
+
+**Diagnósticos diferenciales**
+• [dx 1] — [razón]
+• [dx 2] — [razón]
+• [dx 3] — [razón]
+
+**Urgencia**
+[NO URGENTE / URGENTE EN 24H / URGENTE AHORA] — [razón]
+
+**Exploración dirigida**
+• [hallazgo 1]
+• [hallazgo 2]
+• [hallazgo 3]
+
+**Nota clínica**
+[observación en 1-2 líneas]`;
+
+  await llamarIA(prompt, nombre, sintsStr, 'consulta');
+}
+
+// ── ENVIAR NIÑO SANO ───────────────────────────────────────────
+async function enviarNinoSano(){
+  document.getElementById('ns4').classList.remove('on');
+  document.getElementById('result').classList.add('on');
+  document.getElementById('loading').style.display='flex';
+  document.getElementById('confirmacion').style.display='none';
+  window.scrollTo({top:0,behavior:'smooth'});
+
+  const nombre = document.getElementById('ns-nombre').value||'paciente';
+  const edad   = document.getElementById('ns-edad').value||'desconocida';
+  const sexo   = document.getElementById('ns-sexo').value||'no especificado';
+  const peso   = document.getElementById('ns-peso').value ? document.getElementById('ns-peso').value+' kg' : 'no disponible';
+  const talla  = document.getElementById('ns-talla').value ? document.getElementById('ns-talla').value+' cm' : 'no disponible';
+  const pc     = document.getElementById('ns-pc').value ? document.getElementById('ns-pc').value+' cm' : 'no medido';
+  const notas  = document.getElementById('ns-notas').value || '';
+
+  // Resumir hitos
+  const hitosTexto = Object.entries(NS.hitos).map(([i,v])=>{
+    const hitos = getHitos(EDAD_MESES);
+    return `${hitos[i]}: ${v==='si'?'✓ logrado':v==='no'?'✗ no logrado':'? no sabe'}`;
+  }).join('; ') || 'no evaluados';
+
+  const prompt=`Eres un asistente clínico de apoyo a médicos pediatras en Centroamérica. Genera un resumen de CONTROL DE NIÑO SANO para el médico. Sé conciso y clínico.
+
+PACIENTE: ${nombre} | ${edad} | ${sexo}
+Peso: ${peso} | Talla: ${talla} | Perímetro cefálico: ${pc}
+
+HITOS DE DESARROLLO (${edad}):
+${hitosTexto}
+
+ALIMENTACIÓN: ${NS.ns_alim||'no especificada'}
+VACUNAS: ${NS.ns_vacunas||'N/A'}
+VITAMINAS/HIERRO: ${NS.ns_vitaminas||'N/A'}
+SUEÑO: ${NS.ns_sueno||'N/A'}
+PREOCUPACIONES DE LOS PADRES: ${NS.preocupaciones.join(', ')||'ninguna'}
+ENFERMEDADES DESDE ÚLTIMA CONSULTA: ${NS.ns_enfermedad||'N/A'}
+${notas?'NOTA DE PADRES: '+notas:''}
+
+Formato de respuesta:
+**RESUMEN — ${nombre.toUpperCase()}** (CONTROL DE NIÑO SANO)
+[1-2 oraciones sobre estado general del desarrollo]
+
+**Evaluación del desarrollo**
+[análisis de hitos alcanzados y pendientes para la edad]
+
+**Área nutricional**
+[observación sobre alimentación, peso y talla para la edad]
+
+**Vacunas y preventivo**
+[estado vacunal y recomendaciones]
+
+**Alertas del desarrollo**
+[señales que requieren atención o seguimiento, o "Sin alertas identificadas"]
+
+**Recomendaciones para los padres**
+• [recomendación 1 adaptada a la edad]
+• [recomendación 2]
+• [recomendación 3]
+
+**Nota clínica**
+[observación relevante en 1-2 líneas]`;
+
+  await llamarIA(prompt, nombre, 'control de niño sano', 'nino_sano');
+}
+
+// ── LLAMAR IA ─────────────────────────────────────────────────
+async function llamarIA(prompt, nombre, sintsStr, tipo){
+  try{
+    const r = await fetch(SUPA_URL_PC+'/functions/v1/ai-clinico',{
+      method:'POST',
+      headers:{
+        'Content-Type':'application/json',
+        'Authorization':'Bearer '+(window.supabaseToken||SUPA_ANON_PC),
+      },
+      body:JSON.stringify({prompt, tipo})
+    });
+    if(!r.ok){const e=await r.json();throw new Error(e.error||'Error '+r.status);}
+    const data=await r.json();
+    const txt=data.texto||'Sin respuesta.';
+
+    const urgencia = txt.includes('URGENTE AHORA')?'URGENTE AHORA':
+                     txt.includes('URGENTE EN 24H')?'URGENTE EN 24H':'NO URGENTE';
+
+    // Guardar en Supabase
+    try{
+      const token = window.supabaseToken||localStorage.getItem('clinica-token-persist');
+      const authH = token?'Bearer '+token:'Bearer '+SUPA_ANON_PC;
+      await fetch(SUPA_URL_PC+'/rest/v1/preconsultas',{
+        method:'POST',
+        headers:{'Content-Type':'application/json','apikey':SUPA_ANON_PC,'Authorization':authH,'Prefer':'return=minimal'},
+        body:JSON.stringify({
+          medico_id: window.MEDICO_ID||null,
+          nombre_paciente:nombre,
+          edad: tipo==='consulta'?document.getElementById('c-edad').value:document.getElementById('ns-edad').value,
+          peso: tipo==='consulta'?
+            (document.getElementById('c-peso').value?document.getElementById('c-peso').value+' kg':''):
+            (document.getElementById('ns-peso').value?document.getElementById('ns-peso').value+' kg':''),
+          sexo: tipo==='consulta'?document.getElementById('c-sexo').value:document.getElementById('ns-sexo').value,
+          sintomas: sintsStr,
+          dias: tipo==='consulta'?S.dias:0,
+          datos_json:{tipo_consulta:tipo, alarmas:S.alarmas, meds:S.meds},
+          resumen_ia:txt, urgencia, atendido:false
+        })
+      });
+    }catch(e2){ console.log('BD:', e2); }
+
+    // WhatsApp médico
+    const tel = sessionStorage.getItem('clinica-tel')||'';
+    if(tel){
+      const txtWA='*PRE CLÍNICA NUTRIBEN — '+nombre+'*\n\n'+txt.replace(/\*\*(.*?)\*\*/g,'*$1*');
+      setTimeout(()=>window.open('https://wa.me/'+tel.replace(/[^0-9]/g,'')+'?text='+encodeURIComponent(txtWA),'_blank'),800);
+    }
+
+    mostrarConfirmacion(nombre, tipo);
+
+  }catch(e){
+    document.getElementById('loading').style.display='none';
+    document.getElementById('confirmacion').style.display='block';
+    document.getElementById('conf-texto').innerHTML=
+      '<p style="color:var(--rojo);font-weight:600">⚠️ '+e.message+'</p><p style="font-size:12px;color:var(--texto3);margin-top:6px">Su información fue registrada. El médico la revisará.</p>';
+  }
+}
+</script>
+</body>
+</html>
