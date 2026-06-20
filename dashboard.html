@@ -518,6 +518,7 @@ async function verDetalle(id){
         <div class="det-ttl">Resumen clínico IA</div>
         <div class="det-content">${resumenHtml}</div>
       </div>
+      ${generarBloqueCurvas(PC_ACTIVA)}
     </div>
     <div class="det-footer">
       <button class="btn btn-ok" onclick="marcarAtendido('${PC_ACTIVA.id}')">
@@ -629,6 +630,229 @@ function compartirURL(url){
   navigator.clipboard?.writeText(url).then(()=>toast('✅ Link copiado al portapapeles')).catch(()=>{
     prompt('Copie este link:', url);
   });
+}
+
+
+// ═══════════════════════════════════════════════════════════
+// MÓDULO CURVAS DE CRECIMIENTO OMS 2006/2007
+// Fuente: WHO Child Growth Standards
+// ═══════════════════════════════════════════════════════════
+
+// Tablas LMS (Lambda, Mu, Sigma) OMS para Peso/Edad niños 0-60 meses
+// Fuente: WHO (2006) Child Growth Standards
+const OMS_PESO_NINO = {
+  // mes: [L, M, S]
+  0:[0.3487,3.3464,0.14602],1:[0.2297,4.4709,0.13395],2:[0.1970,5.5675,0.12385],
+  3:[0.2986,6.3762,0.11727],4:[0.3360,7.0023,0.11316],5:[0.3659,7.5105,0.11076],
+  6:[0.3933,7.9340,0.10958],7:[0.4184,8.2970,0.10902],8:[0.4412,8.6151,0.10882],
+  9:[0.4615,8.9014,0.10885],10:[0.4797,9.1649,0.10904],11:[0.4960,9.4122,0.10933],
+  12:[0.5106,9.6479,0.10967],15:[0.5445,10.1685,0.11053],18:[0.5719,10.6571,0.11150],
+  21:[0.5945,11.1343,0.11254],24:[0.6134,11.5049,0.11308],30:[0.6440,12.1695,0.11470],
+  36:[0.6693,12.7318,0.11600],42:[0.6903,13.2776,0.11715],48:[0.7079,13.8130,0.11815],
+  60:[0.7359,14.8516,0.11983]
+};
+const OMS_PESO_NINA = {
+  0:[0.3809,3.2322,0.14171],1:[0.1714,4.1873,0.13724],2:[0.1714,5.1282,0.13000],
+  3:[0.2475,5.8458,0.12619],4:[0.3162,6.4237,0.12402],5:[0.3708,6.8985,0.12274],
+  6:[0.4149,7.2970,0.12214],7:[0.4515,7.6422,0.12192],8:[0.4826,7.9487,0.12190],
+  9:[0.5093,8.2254,0.12199],10:[0.5326,8.4800,0.12214],11:[0.5534,8.7195,0.12232],
+  12:[0.5721,8.9481,0.12252],15:[0.6115,9.5367,0.12311],18:[0.6438,10.0857,0.12376],
+  21:[0.6706,10.6015,0.12446],24:[0.6929,11.0458,0.12486],30:[0.7299,11.8799,0.12594],
+  36:[0.7596,12.5900,0.12680],42:[0.7842,13.2750,0.12751],48:[0.8049,13.9398,0.12809],
+  60:[0.8388,15.2074,0.12893]
+};
+
+// Tablas LMS Talla/Edad niños 0-60 meses
+const OMS_TALLA_NINO = {
+  0:[1,49.8842,0.03795],1:[1,54.7244,0.03557],2:[1,58.4249,0.03424],
+  3:[1,61.4292,0.03328],4:[1,63.8860,0.03257],5:[1,65.9026,0.03204],
+  6:[1,67.6236,0.03165],7:[1,69.1645,0.03139],8:[1,70.5994,0.03124],
+  9:[1,71.9687,0.03117],10:[1,73.2812,0.03118],11:[1,74.5244,0.03124],
+  12:[1,75.7490,0.03132],15:[1,79.1222,0.03168],18:[1,82.3241,0.03208],
+  21:[1,85.1749,0.03247],24:[1,87.8161,0.03284],30:[1,92.7292,0.03352],
+  36:[1,96.1075,0.03406],42:[1,99.9026,0.03454],48:[1,103.3122,0.03498],
+  60:[1,109.9761,0.03576]
+};
+const OMS_TALLA_NINA = {
+  0:[1,49.1477,0.03790],1:[1,53.6872,0.03640],2:[1,57.0673,0.03568],
+  3:[1,59.8029,0.03497],4:[1,62.0899,0.03433],5:[1,64.0301,0.03375],
+  6:[1,65.7311,0.03324],7:[1,67.2873,0.03281],8:[1,68.7498,0.03247],
+  9:[1,70.1435,0.03220],10:[1,71.4818,0.03200],11:[1,72.7710,0.03185],
+  12:[1,74.0150,0.03174],15:[1,77.4756,0.03151],18:[1,80.7410,0.03143],
+  21:[1,83.7044,0.03142],24:[1,86.4176,0.03146],30:[1,91.4914,0.03162],
+  36:[1,95.1312,0.03176],42:[1,98.7489,0.03190],48:[1,102.2837,0.03204],
+  60:[1,109.1733,0.03228]
+};
+
+// Percentiles Z-score → percentil
+function zToPercentil(z){
+  const tabla = {
+    '-3':0.1,'-2.5':0.6,'-2':2.3,'-1.5':6.7,'-1':15.9,'-0.5':30.9,
+    '0':50,'0.5':69.1,'1':84.1,'1.5':93.3,'2':97.7,'2.5':99.4,'3':99.9
+  };
+  // Interpolación simple
+  if(z<=-3) return 0.1;
+  if(z>=3) return 99.9;
+  const keys = Object.keys(tabla).map(Number).sort((a,b)=>a-b);
+  for(let i=0;i<keys.length-1;i++){
+    if(z>=keys[i] && z<=keys[i+1]){
+      const t=(z-keys[i])/(keys[i+1]-keys[i]);
+      return tabla[keys[i]]+(tabla[keys[i+1]]-tabla[keys[i]])*t;
+    }
+  }
+  return 50;
+}
+
+function getMesInterpolar(tabla, meses){
+  const keys = Object.keys(tabla).map(Number).sort((a,b)=>a-b);
+  // Mes exacto
+  if(tabla[meses]) return tabla[meses];
+  // Interpolación
+  let inf=keys[0], sup=keys[keys.length-1];
+  for(let i=0;i<keys.length-1;i++){
+    if(keys[i]<=meses && keys[i+1]>=meses){ inf=keys[i]; sup=keys[i+1]; break; }
+  }
+  const t=(meses-inf)/(sup-inf);
+  return [
+    tabla[inf][0]+(tabla[sup][0]-tabla[inf][0])*t,
+    tabla[inf][1]+(tabla[sup][1]-tabla[inf][1])*t,
+    tabla[inf][2]+(tabla[sup][2]-tabla[inf][2])*t
+  ];
+}
+
+function calcZScore(valor, meses, sexo, tipo){
+  const tabla = tipo==='peso'
+    ? (sexo==='niño'?OMS_PESO_NINO:OMS_PESO_NINA)
+    : (sexo==='niño'?OMS_TALLA_NINO:OMS_TALLA_NINA);
+  const [L,M,S] = getMesInterpolar(tabla, Math.min(meses,60));
+  if(L===0) return (Math.log(valor/M))/S;
+  return (Math.pow(valor/M,L)-1)/(L*S);
+}
+
+function clasificarZScore(z, tipo){
+  if(tipo==='peso'){
+    if(z<-3) return {label:'Desnutrición severa',color:'#d93535',icon:'🚨'};
+    if(z<-2) return {label:'Bajo peso',color:'#FAA334',icon:'⚠️'};
+    if(z<1)  return {label:'Peso normal',color:'#1db86a',icon:'✅'};
+    if(z<2)  return {label:'Posible sobrepeso',color:'#FAA334',icon:'⚠️'};
+    return {label:'Obesidad',color:'#d93535',icon:'🚨'};
+  } else {
+    if(z<-3) return {label:'Talla muy baja',color:'#d93535',icon:'🚨'};
+    if(z<-2) return {label:'Talla baja',color:'#FAA334',icon:'⚠️'};
+    if(z<2)  return {label:'Talla normal',color:'#1db86a',icon:'✅'};
+    return {label:'Talla alta',color:'#00A0DF',icon:'ℹ️'};
+  }
+}
+
+function generarGraficaSVG(meses, sexo, pesoActual, tallaActual){
+  const puntos_mes = [0,3,6,9,12,18,24,36,48,60];
+  const tablaPeso = sexo==='niño'?OMS_PESO_NINO:OMS_PESO_NINA;
+  const tablaTalla = sexo==='niño'?OMS_TALLA_NINO:OMS_TALLA_NINA;
+  
+  // Calcular curvas P3, P50, P97 para peso
+  function getPercentilPeso(p_z){
+    return puntos_mes.map(m=>{
+      const [L,M,S] = getMesInterpolar(tablaPeso, m);
+      return M*Math.pow(1+L*S*p_z, 1/L);
+    });
+  }
+  
+  const p3  = getPercentilPeso(-1.881);
+  const p50 = getPercentilPeso(0);
+  const p97 = getPercentilPeso(1.881);
+  
+  const W=360, H=200, padL=35, padB=25, padT=15, padR=15;
+  const gW=W-padL-padR, gH=H-padB-padT;
+  const maxMes=60, minPeso=0, maxPeso=25;
+  
+  const mx=m=>(m/maxMes)*gW+padL;
+  const my=p=>H-padB-(p-minPeso)/(maxPeso-minPeso)*gH;
+  
+  const path=(arr,col,dash='')=>{
+    const d=arr.map((v,i)=>`${i===0?'M':'L'}${mx(puntos_mes[i]).toFixed(1)},${my(v).toFixed(1)}`).join(' ');
+    return `<path d="${d}" fill="none" stroke="${col}" stroke-width="1.5" stroke-dasharray="${dash}"/>`;
+  };
+  
+  // Punto del paciente
+  const px=mx(Math.min(meses,60));
+  const py=pesoActual?my(pesoActual):null;
+  
+  // Eje X labels
+  const xLabels = puntos_mes.filter(m=>m%12===0).map(m=>
+    `<text x="${mx(m)}" y="${H-8}" font-size="9" fill="#8892aa" text-anchor="middle">${m===0?'RN':m+'m'}</text>`
+  ).join('');
+  
+  // Eje Y labels
+  const yLabels = [5,10,15,20,25].map(v=>
+    `<text x="${padL-4}" y="${my(v)+3}" font-size="9" fill="#8892aa" text-anchor="end">${v}</text>`
+  ).join('');
+
+  return `<svg width="100%" viewBox="0 0 ${W} ${H}" style="font-family:system-ui;background:#f8faff;border-radius:8px;border:1px solid #e2e8f4">
+    <!-- Grid -->
+    ${[5,10,15,20,25].map(v=>`<line x1="${padL}" y1="${my(v)}" x2="${W-padR}" y2="${my(v)}" stroke="#e2e8f4" stroke-width="0.5"/>`).join('')}
+    <!-- Curvas OMS -->
+    ${path(p3,'#FAA334','4,3')}
+    ${path(p50,'#0033A1','')}
+    ${path(p97,'#FAA334','4,3')}
+    <!-- Labels curvas -->
+    <text x="${mx(60)+2}" y="${my(p3[p3.length-1])}" font-size="8" fill="#FAA334">P3</text>
+    <text x="${mx(60)+2}" y="${my(p50[p50.length-1])}" font-size="8" fill="#0033A1">P50</text>
+    <text x="${mx(60)+2}" y="${my(p97[p97.length-1])}" font-size="8" fill="#FAA334">P97</text>
+    <!-- Ejes -->
+    ${xLabels}${yLabels}
+    <text x="${W/2}" y="${H-1}" font-size="9" fill="#4a5370" text-anchor="middle">Edad (meses)</text>
+    <text x="8" y="${H/2}" font-size="9" fill="#4a5370" text-anchor="middle" transform="rotate(-90,8,${H/2})">kg</text>
+    <!-- Punto paciente -->
+    ${py!==null?`<circle cx="${px}" cy="${py}" r="5" fill="#d93535" stroke="#fff" stroke-width="1.5"/>
+    <line x1="${px}" y1="${padT}" x2="${px}" y2="${H-padB}" stroke="#d93535" stroke-width="1" stroke-dasharray="3,2"/>`:
+    `<line x1="${px}" y1="${padT}" x2="${px}" y2="${H-padB}" stroke="#d93535" stroke-width="1.5" stroke-dasharray="3,2"/>`}
+    <!-- Título -->
+    <text x="${W/2}" y="11" font-size="9" fill="#0033A1" text-anchor="middle" font-weight="600">Peso/Edad · OMS 2006 · ${sexo==='niño'?'Niño':'Niña'}</text>
+  </svg>`;
+}
+
+// Función principal que genera el bloque de curvas para el detalle del dashboard
+function generarBloqueCurvas(pc){
+  const datos = pc?.datos_json;
+  if(!datos) return '';
+  if(datos.tipo_consulta !== 'nino_sano') return '';
+  
+  const peso  = parseFloat(pc.peso);
+  const sexo  = pc.sexo || 'niño';
+  const edad  = pc.edad || '';
+  
+  // Calcular meses desde la edad
+  let meses = 0;
+  const matchM = edad.match(/(\d+)\s*mes/);
+  const matchA = edad.match(/(\d+)\s*año/);
+  const matchD = edad.match(/(\d+)\s*d/);
+  if(matchD) meses = parseInt(matchD[1])/30;
+  else if(matchM) meses = parseInt(matchM[1]);
+  else if(matchA) meses = parseInt(matchA[1])*12 + (matchM?parseInt(matchM[1]):0);
+  
+  if(!peso || isNaN(peso) || meses<0) return '';
+  
+  let html = '<div class="det-section"><div class="det-ttl">📊 Curvas de crecimiento OMS 2006</div>';
+  
+  // Peso/Edad
+  const zPeso = calcZScore(peso, meses, sexo, 'peso');
+  const pctPeso = zToPercentil(zPeso).toFixed(1);
+  const clasPeso = clasificarZScore(zPeso, 'peso');
+  
+  html += `<div style="margin-bottom:10px">
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+      <span style="font-size:13px;font-weight:600;color:var(--texto)">Peso/Edad:</span>
+      <span style="background:${clasPeso.color}22;color:${clasPeso.color};border:1px solid ${clasPeso.color};
+        border-radius:20px;padding:2px 10px;font-size:12px;font-weight:700">
+        ${clasPeso.icon} ${clasPeso.label}
+      </span>
+      <span style="font-size:12px;color:var(--texto3)">Z: ${zPeso.toFixed(2)} · P${pctPeso}</span>
+    </div>
+    ${generarGraficaSVG(meses, sexo, peso, null)}
+  </div>`;
+  
+  html += '</div>';
+  return html;
 }
 
 // ── UTILS ─────────────────────────────────────────────────────
