@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Selección de Menú — Neonutrition Summit Nutriben</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Inter:wght@300;400;500;600&display=swap');
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  :root{
+    --navy:#0033A1;--navy75:#3F58A7;--navy50:#6C8CC7;
+    --sky:#00A0DF;--sky56:#8CC8ED;--sky35:#BADDF4;
+    --orange:#FAA334;--cream:#F4F8FF;--charcoal:#1C1C1C;
+    --muted:#5A6A8A;--border:#D0DCF0;--card:#FFFFFF;
+  }
+  body{font-family:'Inter',sans-serif;background:var(--cream);color:var(--charcoal);min-height:100vh}
+
+  .hero{background:linear-gradient(135deg,var(--navy),var(--sky));color:white;padding:2.5rem 1.5rem 2rem;text-align:center;position:relative;overflow:hidden}
+  .hero::before{content:'';position:absolute;inset:0;background:repeating-linear-gradient(45deg,transparent,transparent 28px,rgba(255,255,255,0.04) 28px,rgba(255,255,255,0.04) 29px)}
+  .hero-pill{display:inline-flex;align-items:center;gap:.5rem;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);border-radius:100px;padding:.3rem 1rem;margin-bottom:1rem;position:relative}
+  .hero-pill-dot{width:8px;height:8px;background:var(--orange);border-radius:50%}
+  .hero-pill span{font-size:.68rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase}
+  .hero h1{font-family:'Playfair Display',serif;font-size:clamp(1.6rem,5vw,2.6rem);font-weight:900;line-height:1.1;margin-bottom:.4rem;position:relative}
+  .hero h1 em{color:var(--orange);font-style:normal}
+  .hero-sub{font-size:.85rem;color:rgba(255,255,255,.8);max-width:460px;margin:.5rem auto 0;line-height:1.55;position:relative}
+  .hero-rule{width:40px;height:2px;background:var(--orange);margin:.9rem auto;position:relative}
+
+  .tabs{display:flex;max-width:680px;margin:1.25rem auto 0;padding:0 1rem}
+  .tab-btn{flex:1;padding:.7rem;font-family:'Inter',sans-serif;font-size:.8rem;font-weight:600;cursor:pointer;border:1.5px solid var(--border);background:white;color:var(--muted);transition:all .15s}
+  .tab-btn:first-child{border-radius:8px 0 0 8px}
+  .tab-btn:last-child{border-radius:0 8px 8px 0}
+  .tab-btn.active{background:var(--navy);color:white;border-color:var(--navy);z-index:1}
+
+  
+  .timeline{display:flex;max-width:680px;margin:0 auto;padding:1.25rem 1rem 0}
+  .tl-step{flex:1;text-align:center;position:relative}
+  .tl-step::after{content:'';position:absolute;top:20px;left:50%;width:100%;height:2px;background:var(--border);z-index:0}
+  .tl-step:last-child::after{display:none}
+  .tl-dot{width:40px;height:40px;border-radius:50%;border:2px solid var(--border);background:white;display:flex;align-items:center;justify-content:center;margin:0 auto .4rem;font-size:.7rem;font-weight:700;position:relative;z-index:1;transition:all .2s;color:var(--muted)}
+  .tl-step.active .tl-dot{background:var(--navy);border-color:var(--navy);color:white}
+  .tl-step.done   .tl-dot{background:var(--sky);border-color:var(--sky);color:white}
+  .tl-label{font-size:.52rem;font-weight:600;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);line-height:1.3}
+  .tl-step.active .tl-label{color:var(--navy)}
+  .tl-step.done   .tl-label{color:var(--sky)}
+
+  .wrap{max-width:680px;margin:0 auto;padding:1.5rem 1rem 5rem}
+  .step-panel{display:none}
+  .step-panel.active{display:block}
+
+  .step-hdr{border-radius:14px;padding:1.2rem 1.5rem;margin-bottom:1.1rem;color:white;position:relative;overflow:hidden}
+  .step-hdr::before{content:'';position:absolute;inset:0;background:repeating-linear-gradient(135deg,transparent,transparent 20px,rgba(255,255,255,.04) 20px,rgba(255,255,255,.04) 21px)}
+  .step-hdr.thu {background:linear-gradient(135deg,var(--navy),var(--navy75))}
+  .step-hdr.fril{background:linear-gradient(135deg,var(--navy75),var(--navy50))}
+  .step-hdr.frid{background:linear-gradient(135deg,var(--sky),var(--sky56))}
+  .sh-meta {font-size:.62rem;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:rgba(255,255,255,.65);margin-bottom:.2rem;position:relative}
+  .sh-title{font-family:'Playfair Display',serif;font-size:1.35rem;font-weight:900;position:relative}
+  .sh-rest {font-size:.76rem;color:rgba(255,255,255,.78);margin-top:.15rem;position:relative}
+  .sh-sub  {font-size:.7rem;color:rgba(255,255,255,.9);background:rgba(255,255,255,.15);border-radius:6px;display:inline-block;padding:.25rem .7rem;margin-top:.5rem;position:relative;font-weight:600}
+
+  .fgroup{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:1.3rem 1.4rem;margin-bottom:1.1rem}
+  .flabel{font-size:.7rem;font-weight:600;text-transform:uppercase;letter-spacing:.12em;color:var(--muted);margin-bottom:.5rem;display:block}
+  input[type=text],textarea{width:100%;padding:.65rem .85rem;border:1px solid var(--border);border-radius:7px;font-family:'Inter',sans-serif;font-size:.95rem;background:var(--cream);color:var(--charcoal);transition:border-color .2s}
+  input:focus,textarea:focus{outline:none;border-color:var(--sky);box-shadow:0 0 0 3px rgba(0,160,223,.12)}
+  textarea{min-height:60px;resize:vertical}
+
+  .cat{font-size:.66rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--sky);padding:.4rem 0;border-bottom:1.5px solid var(--sky35);margin:1.1rem 0 .6rem}
+  .cat:first-of-type{margin-top:.1rem}
+
+  .dc{display:flex;align-items:flex-start;gap:.75rem;padding:.75rem .9rem;border:1.5px solid var(--border);border-radius:9px;margin-bottom:.4rem;cursor:pointer;transition:all .15s;background:var(--card);user-select:none}
+  .dc:hover{border-color:var(--sky56);background:#F0F8FF}
+  .dc.selected{border-color:var(--navy);background:#EAF1FF;box-shadow:0 0 0 2px rgba(0,51,161,.1)}
+  .dc input[type=radio]{width:16px;height:16px;accent-color:var(--navy);flex-shrink:0;margin-top:3px;cursor:pointer}
+  .di{flex:1}
+  .dn{font-size:.87rem;font-weight:600;color:var(--charcoal);line-height:1.3}
+  .dd{font-size:.74rem;color:var(--muted);margin-top:.2rem;line-height:1.4}
+
+  .notice{background:#EAF6FF;border:1px solid var(--sky56);border-left:4px solid var(--sky);border-radius:7px;padding:.65rem 1rem;font-size:.79rem;color:#003D6B;margin:0 0 1rem;line-height:1.5}
+  .intro{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:1.1rem 1.4rem;margin-bottom:1.25rem;font-size:.82rem;color:var(--muted);line-height:1.6}
+  .intro strong{color:var(--navy)}
+
+  .nav-row{display:flex;gap:.75rem;margin-top:1.5rem;flex-wrap:wrap}
+  .btn-back{background:white;color:var(--navy75);border:1.5px solid var(--border);padding:.8rem 1.5rem;border-radius:8px;font-family:'Inter',sans-serif;font-size:.88rem;font-weight:600;cursor:pointer;transition:all .15s}
+  .btn-back:hover{border-color:var(--navy50);color:var(--navy)}
+  .btn-next{background:var(--navy);color:white;border:none;padding:.8rem 1.75rem;border-radius:8px;font-family:'Inter',sans-serif;font-size:.9rem;font-weight:600;cursor:pointer;flex:1;transition:background .2s}
+  .btn-next:hover{background:var(--navy75)}
+  .btn-confirm{background:linear-gradient(135deg,var(--navy),var(--sky));color:white;border:none;padding:.9rem 2rem;border-radius:8px;font-family:'Inter',sans-serif;font-size:.95rem;font-weight:700;cursor:pointer;flex:1}
+  .btn-confirm:disabled{opacity:.5;cursor:not-allowed}
+
+  /* SUMMARY STEP */
+  .spanel{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:1.25rem 1.4rem;margin-bottom:1rem}
+  .spanel h3{font-size:.95rem;font-weight:700;color:var(--navy);margin-bottom:.75rem}
+  .mstripe{border-radius:9px;padding:.75rem 1rem;margin-bottom:.4rem}
+  .mstripe.thu {background:#E8EEFF;border-left:4px solid var(--navy)}
+  .mstripe.fril{background:#EDF1FF;border-left:4px solid var(--navy75)}
+  .mstripe.frid{background:#E8F7FF;border-left:4px solid var(--sky)}
+  .ms-meta{font-size:.6rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--muted)}
+  .ms-plato{font-size:.83rem;font-weight:600;color:var(--charcoal)}
+  .ms-notes{font-size:.72rem;color:var(--sky);margin-top:.15rem}
+
+  /* CONFIRMATION */
+  #confirmation{display:none}
+  .conf-hero{background:linear-gradient(135deg,var(--navy),var(--sky));padding:3rem 1.5rem 2rem;text-align:center;color:white}
+  .chk-circle{width:64px;height:64px;background:rgba(255,255,255,.2);border:2px solid rgba(255,255,255,.5);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 1rem;font-size:1.8rem}
+  .conf-hero h2{font-family:'Playfair Display',serif;font-size:1.7rem;margin-bottom:.4rem}
+  .conf-hero p{font-size:.88rem;color:rgba(255,255,255,.8)}
+  .conf-body{max-width:540px;margin:0 auto;padding:1.5rem 1rem 3rem}
+  .cc{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:1rem 1.25rem;margin-bottom:.75rem}
+  .cc-meta{font-size:.63rem;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:var(--muted);margin-bottom:.3rem}
+  .cc-title{font-size:.84rem;font-weight:600;color:var(--charcoal)}
+  .cc-sub{font-size:.74rem;color:var(--sky);margin-top:.1rem}
+
+  /* LOADING */
+  .loading-overlay{position:fixed;inset:0;background:rgba(0,51,161,.85);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:999;color:white;gap:1rem}
+  .spinner{width:40px;height:40px;border:3px solid rgba(255,255,255,.3);border-top-color:white;border-radius:50%;animation:spin .8s linear infinite}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .loading-overlay p{font-size:.9rem;font-weight:500}
+
+  /* ADMIN */
+  #view-admin{display:none}
+  .admin-wrap{max-width:680px;margin:0 auto;padding:1.5rem 1rem 4rem}
+  .admin-top{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.75rem;margin-bottom:1.25rem}
+  .admin-top h2{font-family:'Playfair Display',serif;font-size:1.3rem;color:var(--navy)}
+  .admin-top .sub{font-size:.78rem;color:var(--muted);margin-top:.15rem}
+  .pill-count{background:var(--sky35);color:var(--navy);border-radius:100px;padding:.3rem .75rem;font-size:.78rem;font-weight:700}
+  .btn-dl{background:var(--navy);color:white;border:none;padding:.7rem 1.4rem;border-radius:8px;font-family:'Inter',sans-serif;font-size:.84rem;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:.5rem}
+  .btn-dl:hover{background:var(--navy75)}
+  .btn-refresh{background:white;color:var(--navy);border:1.5px solid var(--border);padding:.7rem 1.1rem;border-radius:8px;font-family:'Inter',sans-serif;font-size:.84rem;font-weight:600;cursor:pointer}
+  .btn-refresh:hover{border-color:var(--sky)}
+  .meal-group{background:var(--card);border:1px solid var(--border);border-radius:12px;margin-bottom:1.25rem;overflow:hidden}
+  .mgh{padding:.85rem 1.25rem}
+  .mgh.thu {background:linear-gradient(90deg,var(--navy),var(--navy75));color:white}
+  .mgh.fril{background:linear-gradient(90deg,var(--navy75),var(--navy50));color:white}
+  .mgh.frid{background:linear-gradient(90deg,var(--sky),var(--sky56));color:white}
+  .mgh-meta{font-size:.62rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;opacity:.75}
+  .mgh-title{font-family:'Playfair Display',serif;font-size:1.05rem;font-weight:900}
+  .dg{border-bottom:1px solid var(--border)}
+  .dg:last-child{border-bottom:none}
+  .dg-title{background:#F4F8FF;padding:.5rem 1.25rem;font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:var(--sky);display:flex;justify-content:space-between;align-items:center}
+  .dg-count{background:var(--sky);color:white;border-radius:100px;padding:.1rem .55rem;font-size:.68rem;font-weight:700}
+  .med-row{padding:.5rem 1.25rem;display:flex;align-items:baseline;gap:.5rem;border-bottom:1px dotted var(--border);font-size:.82rem;flex-wrap:wrap}
+  .med-row:last-child{border-bottom:none}
+  .med-name{font-weight:600;color:var(--charcoal)}
+  .med-notes{font-size:.72rem;color:var(--sky);margin-left:auto}
+  .no-orders{text-align:center;padding:3rem 1rem;color:var(--muted);font-size:.9rem}
+  .no-orders span{font-size:2rem;display:block;margin-bottom:.75rem}
+  .error-msg{background:#FFF0F0;border:1px solid #FFCDD2;border-left:4px solid #E53935;border-radius:7px;padding:.8rem 1rem;font-size:.82rem;color:#B71C1C;margin-bottom:1rem}
+
+  @media(max-width:480px){
+    .hero{padding:2rem 1rem 1.5rem}
+    .wrap,.admin-wrap{padding:1rem .75rem 4rem}
+    .tl-dot{width:34px;height:34px;font-size:.62rem}
+    .admin-top{flex-direction:column;align-items:flex-start}
+  }
+</style>
+</head>
+<body>
+
+<div class="loading-overlay" id="loader" style="display:none">
+  <div class="spinner"></div>
+  <p id="loader-msg">Guardando pedido…</p>
+</div>
+
+<div class="hero">
+  <div class="hero-pill"><div class="hero-pill-dot"></div><span>Nutriben Centroamérica</span></div>
+  <h1>Selección de <em>Menú</em></h1>
+  <div class="hero-rule"></div>
+  <p class="hero-sub">Neonutrition Summit Nutriben · Hotel Morrison, Bogotá<br>Julio 16–17, 2026</p>
+</div>
+
+<div class="tabs">
+  <button class="tab-btn active" id="tab-form"  onclick="switchTab('form')">📋 Registrar pedido</button>
+  <button class="tab-btn"        id="tab-admin" onclick="switchTab('admin')">📊 Ver resumen</button>
+</div>
+
+<!-- ═══════ FORMULARIO ═══════ -->
+<div id="view-form">
+  
+  <div class="timeline" id="timeline">
+    <div class="tl-step active" id="tl0"><div class="tl-dot">1</div><div class="tl-label">Nombre</div></div>
+    <div class="tl-step" id="tl1"><div class="tl-dot">2</div><div class="tl-label">Cena<br>Jue</div></div>
+    <div class="tl-step" id="tl2"><div class="tl-dot">3</div><div class="tl-label">Alm<br>Vie</div></div>
+    <div class="tl-step" id="tl3"><div class="tl-dot">4</div><div class="tl-label">Cena<br>Vie</div></div>
+    <div class="tl-step" id="tl4"><div class="tl-dot">5</div><div class="tl-label">Confirmar</div></div>
+  </div><div class="tl-label">Confirmar</div></div>
+  </div>
+
+  <div class="wrap">
+
+    <!-- PASO 0: NOMBRE -->
+    <div class="step-panel active" id="step0">
+      <div class="intro">Bienvenido al formulario de pedido del <strong>Neonutrition Summit Nutriben</strong>. Elige tu plato para cada una de las <strong>3 comidas del evento</strong>.</div>
+      <div class="fgroup">
+        <label class="flabel" for="nombre">Nombre completo <span style="color:var(--navy)">*</span></label>
+        <input type="text" id="nombre" placeholder="Dr./Dra. Apellido Nombre" required>
+      </div>
+      <div class="nav-row">
+        <button class="btn-next" onclick="goStep(1)">Continuar →</button>
+      </div>
+    </div>
+
+    <!-- PASO 1: PLATO ANDRÉS D.C. -->
+    <div class="step-panel" id="step1">
+      <div class="step-hdr thu">
+        <div class="sh-meta">Jueves 16 de Julio · Cena</div>
+        <div class="sh-title">Andrés D.C.</div>
+        <div class="sh-rest">Cocina colombiana contemporánea · Bogotá</div>
+      </div>
+      <div class="notice">Selecciona tu plato principal.</div>
+
+      <div class="cat">Sopas &amp; Frijoles</div>
+      <label class="dc" onclick="sd(this,'p1')"><input type="radio" name="p1" value="Ajiaco con pollo"><div class="di"><div class="dn">Ajiaco con pollo</div><div class="dd">Arroz blanco, aguacate, crema de leche, alcaparras y cilantro</div></div></label>
+      <label class="dc" onclick="sd(this,'p1')"><input type="radio" name="p1" value="Sopa antioqueña de arroz"><div class="di"><div class="dn">Sopa antioqueña de arroz</div><div class="dd">Carne molida, plátano maduro, huevo frito, chicharrones, aguacate y hogao</div></div></label>
+      <label class="dc" onclick="sd(this,'p1')"><input type="radio" name="p1" value="Plato de frijoles"><div class="di"><div class="dn">Plato de frijoles</div><div class="dd">Carne molida, chicharrones, chorizo antioqueño, plátano, arroz, arepa, aguacate y hogao</div></div></label>
+      <label class="dc" onclick="sd(this,'p1')"><input type="radio" name="p1" value="Plato de frijoles vegetarianos"><div class="di"><div class="dn">Plato de frijoles vegetarianos</div><div class="dd">Arroz blanco, ensalada de aguacate y plátano maduro</div></div></label>
+      <label class="dc" onclick="sd(this,'p1')"><input type="radio" name="p1" value="Consomé solo solito"><div class="di"><div class="dn">Consomé solo solito</div><div class="dd">Servido con arepa bola y aguacate</div></div></label>
+      <label class="dc" onclick="sd(this,'p1')"><input type="radio" name="p1" value="Consomé con carne y papa picada"><div class="di"><div class="dn">Consomé con carne y papa picada</div><div class="dd">Servido con arepa bola y aguacate</div></div></label>
+      <label class="dc" onclick="sd(this,'p1')"><input type="radio" name="p1" value="Consomé con costilla y papa picada"><div class="di"><div class="dn">Consomé con costilla y papa picada</div><div class="dd">Servido con arepa bola y aguacate</div></div></label>
+      <label class="dc" onclick="sd(this,'p1')"><input type="radio" name="p1" value="Sancocho trifásico"><div class="di"><div class="dn">Sancocho trifásico</div><div class="dd">Pollo, costilla de res y costilla de cerdo, con papa, yuca, mazorca, plátano y hogao; arroz blanco, aguacate y caldo con picadillo de cebolla y cilantro</div></div></label>
+      <label class="dc" onclick="sd(this,'p1')"><input type="radio" name="p1" value="Cuchuco de trigo con espinazo"><div class="di"><div class="dn">Cuchuco de trigo con espinazo</div><div class="dd">Con espinazo desmechado, arroz blanco y aguacate</div></div></label>
+      <label class="dc" onclick="sd(this,'p1')"><input type="radio" name="p1" value="Frijoles con chilli"><div class="di"><div class="dn">Frijoles con chilli</div><div class="dd">Con carne, acompañados con chip de plátano verde</div></div></label>
+
+      <div class="cat">Ensaladas</div>
+      <label class="dc" onclick="sd(this,'p1')"><input type="radio" name="p1" value="Ensalada del mes"><div class="di"><div class="dn">Ensalada del mes</div><div class="dd">Pregúntale a tu mesero por la oferta del mes</div></div></label>
+      <label class="dc" onclick="sd(this,'p1')"><input type="radio" name="p1" value="Ensalada Barú"><div class="di"><div class="dn">Ensalada Barú</div><div class="dd">Mix de lechugas, tomates cherry de colores, pepino, aguacate, almendras y vinagreta</div></div></label>
+      <label class="dc" onclick="sd(this,'p1')"><input type="radio" name="p1" value="Ensalada de aguacate con salsas de la casa"><div class="di"><div class="dn">Ensalada de aguacate con salsas de la casa</div><div class="dd">Con tomate, cebolla, cilantro y aceite de oliva</div></div></label>
+      <label class="dc" onclick="sd(this,'p1')"><input type="radio" name="p1" value="Ensalada griega"><div class="di"><div class="dn">Ensalada griega</div><div class="dd">Tomate cherry, pepino, aceitunas, cebolla roja, queso feta, alcaparras y aderezo con vinagre balsámico</div></div></label>
+      <label class="dc" onclick="sd(this,'p1')"><input type="radio" name="p1" value="Ensalada Pajares sola"><div class="di"><div class="dn">Ensalada Pajares</div><div class="dd">Mix de lechugas, pepino, aguacate, almendras, rábano rojo con aceite de oliva y vinagre balsámico</div></div></label>
+      <label class="dc" onclick="sd(this,'p1')"><input type="radio" name="p1" value="Ensalada César sola"><div class="di"><div class="dn">Ensalada César</div><div class="dd">Lechuga romana, queso parmesano, filete de anchoas, crutones y aderezo César</div></div></label>
+      <label class="dc" onclick="sd(this,'p1')"><input type="radio" name="p1" value="Ensalada cítrica"><div class="di"><div class="dn">Ensalada cítrica</div><div class="dd">Lechugas frescas de huerta, cascos cítricos de toronja rosada y naranja, queso parmesano y almendra tostada fileteada</div></div></label>
+      <label class="dc" onclick="sd(this,'p1')"><input type="radio" name="p1" value="Ensalada de nuestra huerta"><div class="di"><div class="dn">Ensalada de nuestra huerta</div><div class="dd">Lechugas frescas, rábano encurtido en hierbabuena, queso feta aromatizado, semillas de granada y crocante de marañón con miel</div></div></label>
+      <label class="dc" onclick="sd(this,'p1')"><input type="radio" name="p1" value="Verduras asadas"><div class="di"><div class="dn">Verduras asadas</div><div class="dd">Pimentones, berenjenas, palmitos, zuchini amarillo, tomates cherry en pesto, champiñones y espárragos; con pan de la casa</div></div></label>
+
+      <div class="cat">Vegetarianos</div>
+      <label class="dc" onclick="sd(this,'p1')"><input type="radio" name="p1" value="Albóndigas vegetarianas en salsa napolitana"><div class="di"><div class="dn">Albóndigas vegetarianas en salsa napolitana</div><div class="dd">Acompañadas con pan de la casa</div></div></label>
+      <label class="dc" onclick="sd(this,'p1')"><input type="radio" name="p1" value="Milanesa vegetariana"><div class="di"><div class="dn">Milanesa vegetariana</div><div class="dd">Gratinada con queso mozzarella y salsa pomodoro; con mix de lechugas aderezadas y puré de papa</div></div></label>
+      <label class="dc" onclick="sd(this,'p1')"><input type="radio" name="p1" value="Hamburguesa vegetariana"><div class="di"><div class="dn">Hamburguesa vegetariana</div><div class="dd">Con hongos de la tierra apanada en panko, en pan de papa y acompañada con papas a la francesa</div></div></label>
+
+      <div class="cat">Favoritos de siempre</div>
+      <label class="dc" onclick="sd(this,'p1')"><input type="radio" name="p1" value="Arroz con huevo y papas chip"><div class="di"><div class="dn">Arroz con huevo y papas chip</div></div></label>
+      <label class="dc" onclick="sd(this,'p1')"><input type="radio" name="p1" value="Tortilla de pega de arroz"><div class="di"><div class="dn">Tortilla de pega de arroz</div></div></label>
+      <label class="dc" onclick="sd(this,'p1')"><input type="radio" name="p1" value="Sobrebarriga a la criolla"><div class="di"><div class="dn">Sobrebarriga a la criolla</div><div class="dd">200 gr con arroz blanco, papa, yuca, mazorca y hogao</div></div></label>
+      <label class="dc" onclick="sd(this,'p1')"><input type="radio" name="p1" value="Albóndigas de res en salsa"><div class="di"><div class="dn">Albóndigas de res en salsa</div><div class="dd">250 gr con arroz blanco y papas chip</div></div></label>
+
+      <div class="cat">Hamburguesas &amp; Sándwiches</div>
+      <label class="dc" onclick="sd(this,'p1')"><input type="radio" name="p1" value="Hamburguesa campesina"><div class="di"><div class="dn">Hamburguesa campesina</div><div class="dd">Con cebolla caramelizada, tocineta y queso mozzarella; con papas a la francesa</div></div></label>
+      <label class="dc" onclick="sd(this,'p1')"><input type="radio" name="p1" value="Hamburguesa vegetariana (De todo un poco)"><div class="di"><div class="dn">Hamburguesa vegetariana</div><div class="dd">Con hongos de la tierra apanada en panko, en pan de papa y con papas a la francesa</div></div></label>
+      <label class="dc" onclick="sd(this,'p1')"><input type="radio" name="p1" value="Choripán"><div class="di"><div class="dn">Choripán</div><div class="dd">Chorizo 125 gr en pan baguette con papas chip y chimichurri</div></div></label>
+      <label class="dc" onclick="sd(this,'p1')"><input type="radio" name="p1" value="Sándwich Pepito de Lomo"><div class="di"><div class="dn">Sándwich Pepito de Lomo</div><div class="dd">165 gr de lomo sellado en pimienta, queso mozzarella, tocineta, cebolla caramelizada, tomate, aguacate y mayonesa; con papas a la francesa</div></div></label>
+
+      <div class="cat">Pollo</div>
+      <label class="dc" onclick="sd(this,'p1')"><input type="radio" name="p1" value="Pechuga de pollo 200 gr"><div class="di"><div class="dn">Pechuga de pollo 200 gr</div><div class="dd">Con guarnición a elegir</div></div></label>
+      <label class="dc" onclick="sd(this,'p1')"><input type="radio" name="p1" value="Pechuga de pollo 400 gr"><div class="di"><div class="dn">Pechuga de pollo 400 gr</div><div class="dd">Con guarnición a elegir</div></div></label>
+      <label class="dc" onclick="sd(this,'p1')"><input type="radio" name="p1" value="Pollo en salsa criolla 400 gr"><div class="di"><div class="dn">Pollo en salsa criolla 400 gr</div><div class="dd">Con guarnición a elegir</div></div></label>
+      <label class="dc" onclick="sd(this,'p1')"><input type="radio" name="p1" value="Pollo parrilla 400 gr"><div class="di"><div class="dn">Pollo parrilla 400 gr</div><div class="dd">Con guarnición a elegir</div></div></label>
+      <label class="dc" onclick="sd(this,'p1')"><input type="radio" name="p1" value="Canasta de pollo 600 gr"><div class="di"><div class="dn">Canasta de pollo 600 gr</div><div class="dd">Medio pollo apanado y frito con papas a la francesa</div></div></label>
+
+      <div class="cat">Cerdo</div>
+      <label class="dc" onclick="sd(this,'p1')"><input type="radio" name="p1" value="Rack de costilla de cerdo 500 gr"><div class="di"><div class="dn">Rack de costilla de cerdo 500 gr</div><div class="dd">Para chuparse los dedos. Con guarnición a elegir</div></div></label>
+      <label class="dc" onclick="sd(this,'p1')"><input type="radio" name="p1" value="Panceta de cerdo 330 gr al horno"><div class="di"><div class="dn">Panceta de cerdo 330 gr al horno</div><div class="dd">Con ensalada de espinaca, melocotón y almendras</div></div></label>
+
+      <div class="cat">Del Río y del Mar</div>
+      <label class="dc" onclick="sd(this,'p1')"><input type="radio" name="p1" value="Encocado de camarones 150 gr"><div class="di"><div class="dn">Encocado de camarones 150 gr</div><div class="dd">Con arroz blanco y patacón</div></div></label>
+      <label class="dc" onclick="sd(this,'p1')"><input type="radio" name="p1" value="Camarones al ajillo 150 gr"><div class="di"><div class="dn">Camarones al ajillo 150 gr</div><div class="dd">Con pan de la casa</div></div></label>
+      <label class="dc" onclick="sd(this,'p1')"><input type="radio" name="p1" value="Filete de trucha 250 gr"><div class="di"><div class="dn">Filete de trucha 250 gr</div><div class="dd">Con papas al romero y arroz con coco</div></div></label>
+      <label class="dc" onclick="sd(this,'p1')"><input type="radio" name="p1" value="Mojarra frita 500-600 gr"><div class="di"><div class="dn">Mojarra frita 500–600 gr</div><div class="dd">Con arroz con coco y guarnición a elegir (patacón, yuca frita o ensalada)</div></div></label>
+      <label class="dc" onclick="sd(this,'p1')"><input type="radio" name="p1" value="Olla de mejillones 450 gr"><div class="di"><div class="dn">Olla de mejillones 450 gr</div><div class="dd">Con papas a la francesa</div></div></label>
+      <label class="dc" onclick="sd(this,'p1')"><input type="radio" name="p1" value="Pescado blanco 250 gr mediterráneo"><div class="di"><div class="dn">Pescado blanco 250 gr</div><div class="dd">En preparación mediterránea con ensalada Barú y guarnición a elegir</div></div></label>
+      <label class="dc" onclick="sd(this,'p1')"><input type="radio" name="p1" value="Spaguetti marinero"><div class="di"><div class="dn">Spaguetti marinero</div><div class="dd">Dos langostinos U15, 50 gr de anillos de calamar, 120 gr de mejillones, queso parmesano y pan baguette</div></div></label>
+
+      <div class="fgroup" style="margin-top:1.25rem">
+        <label class="flabel">Notas / alergias</label>
+        <textarea id="notas1" placeholder="Sin sal, sin picante, alergia a…"></textarea>
+      </div>
+      <div class="nav-row">
+        <button class="btn-back" onclick="goStep(0)">← Atrás</button>
+        <button class="btn-next" onclick="goStep(2)">Continuar → Almuerzo del Viernes</button>
+      </div>
+    </div>
+    <!-- PASO 3: PLATO LA CATEDRAL -->
+    <div class="step-panel" id="step2">
+      <div class="step-hdr fril">
+        <div class="sh-meta">Viernes 17 de Julio · Almuerzo</div>
+        <div class="sh-title">La Puerta de la Catedral</div>
+        <div class="sh-rest">Cocina colombiana tradicional · La Candelaria, Bogotá</div>
+      </div>
+      <div class="notice">Selecciona tu plato principal.</div>
+
+      <div class="cat">Sopas</div>
+      <label class="dc" onclick="sd(this,'p2')"><input type="radio" name="p2" value="Ajiaco santafereño"><div class="di"><div class="dn">Ajiaco santafereño ★</div><div class="dd">Papa criolla, sabanera, pechuga desmenuzada, mazorca, crema de leche y alcaparras. Con arroz y aguacate</div></div></label>
+      <label class="dc" onclick="sd(this,'p2')"><input type="radio" name="p2" value="Sopa de mondongo"><div class="di"><div class="dn">Sopa de mondongo ★</div><div class="dd">Panza de res, carne de cerdo, costilla, papas y alverja. Con costilla de res y cilantro</div></div></label>
+
+      <div class="cat">Frijoles &amp; Bandeja</div>
+      <label class="dc" onclick="sd(this,'p2')"><input type="radio" name="p2" value="Bandeja paisa"><div class="di"><div class="dn">Bandeja paisa ★</div><div class="dd">Frijol, carne molida, chorizo, chicharrón, morcilla, arroz, huevo, plátano, aguacate y arepa</div></div></label>
+      <label class="dc" onclick="sd(this,'p2')"><input type="radio" name="p2" value="Frijolada Paisa"><div class="di"><div class="dn">Frijolada Paisa</div><div class="dd">Carne molida, chorizo, plátano maduro, chicharrón, arepa de maíz, arroz y aguacate</div></div></label>
+      <label class="dc" onclick="sd(this,'p2')"><input type="radio" name="p2" value="Frijoles con pezuña"><div class="di"><div class="dn">Frijoles con pezuña</div><div class="dd">Frijoles bola roja, arepa de maíz, aguacate y arroz</div></div></label>
+
+      <div class="cat">Pollo</div>
+      <label class="dc" onclick="sd(this,'p2')"><input type="radio" name="p2" value="Pechuga de pollo a la plancha"><div class="di"><div class="dn">Pechuga de pollo a la plancha</div><div class="dd">Plátano maduro, papas a la francesa y ensalada</div></div></label>
+      <label class="dc" onclick="sd(this,'p2')"><input type="radio" name="p2" value="Típico sudado de pollo"><div class="di"><div class="dn">Típico sudado de pollo</div><div class="dd">Pierna pernil, papa, plátano, mazorca, arroz y aguacate</div></div></label>
+      <label class="dc" onclick="sd(this,'p2')"><input type="radio" name="p2" value="Pechuga gratinada con camarón y champiñón"><div class="di"><div class="dn">Pechuga gratinada con camarón y champiñón</div><div class="dd">A la plancha con plátano maduro, papas a la francesa y ensalada</div></div></label>
+
+      <div class="cat">De la Brasa</div>
+      <label class="dc" onclick="sd(this,'p2')"><input type="radio" name="p2" value="Sobrebarriga parrillada con salsa criolla"><div class="di"><div class="dn">Sobrebarriga parrillada con salsa criolla</div><div class="dd">Papa y yuca al vapor, arroz y aguacate</div></div></label>
+      <label class="dc" onclick="sd(this,'p2')"><input type="radio" name="p2" value="Hamburguesa de res"><div class="di"><div class="dn">Hamburguesa de res</div><div class="dd">Carne Angus 200 gr, lechuga, tomate, cebolla y queso. Con papas a la francesa</div></div></label>
+      <label class="dc" onclick="sd(this,'p2')"><input type="radio" name="p2" value="Beef paleta"><div class="di"><div class="dn">Beef paleta</div></div></label>
+
+      <div class="cat">Pescados</div>
+      <label class="dc" onclick="sd(this,'p2')"><input type="radio" name="p2" value="Trucha tártara"><div class="di"><div class="dn">Trucha tártara</div><div class="dd">Pescado fresco 500 gr, plátano maduro, papas a la francesa y ensalada</div></div></label>
+      <label class="dc" onclick="sd(this,'p2')"><input type="radio" name="p2" value="Trucha gratinada con camarón y champiñón"><div class="di"><div class="dn">Trucha gratinada con camarón y champiñón</div><div class="dd">Pescado 400 gr, plátano maduro y ensalada</div></div></label>
+      <label class="dc" onclick="sd(this,'p2')"><input type="radio" name="p2" value="Cazuela de camarones"><div class="di"><div class="dn">Cazuela de camarones</div><div class="dd">Con plátano maduro y arroz</div></div></label>
+      <label class="dc" onclick="sd(this,'p2')"><input type="radio" name="p2" value="Salmón a la plancha"><div class="di"><div class="dn">Salmón a la plancha</div><div class="dd">Con ensalada y plátano maduro</div></div></label>
+      <label class="dc" onclick="sd(this,'p2')"><input type="radio" name="p2" value="Mojarra frita"><div class="di"><div class="dn">Mojarra frita</div><div class="dd">Pescado 850 gr, plátano maduro y ensalada</div></div></label>
+
+      <div class="cat">Vegetarianos</div>
+      <label class="dc" onclick="sd(this,'p2')"><input type="radio" name="p2" value="Bandeja paisa vegetariana"><div class="di"><div class="dn">Bandeja paisa vegetariana</div><div class="dd">Frijol, croquetas de lenteja y garbanzo, chorizo vegetal, morcilla vegana, huevo, plátano, arepa, arroz y aguacate</div></div></label>
+      <label class="dc" onclick="sd(this,'p2')"><input type="radio" name="p2" value="Cuscús vegetariano"><div class="di"><div class="dn">Cuscús vegetariano</div><div class="dd">Zucchini, tomates frescos, aguacate y especias. Con platanitos y aceite de oliva</div></div></label>
+      <label class="dc" onclick="sd(this,'p2')"><input type="radio" name="p2" value="Hamburguesa vegetariana"><div class="di"><div class="dn">Hamburguesa vegetariana</div><div class="dd">Lentejas, garbanzos, champiñones, queso, tomate, cebolla y lechuga. Con papas a la francesa</div></div></label>
+
+      <div class="cat">Pasta</div>
+      <label class="dc" onclick="sd(this,'p2')"><input type="radio" name="p2" value="Spaguetti Bolognesa"><div class="di"><div class="dn">Spaguetti Bolognesa</div><div class="dd">Tomates frescos, carne de res y especias. Con pan baguette y queso parmesano</div></div></label>
+      <label class="dc" onclick="sd(this,'p2')"><input type="radio" name="p2" value="Spaguetti Napolitano"><div class="di"><div class="dn">Spaguetti Napolitano</div><div class="dd">Tomates maduros frescos y especias. Con pan baguette y queso parmesano</div></div></label>
+
+      <div class="fgroup" style="margin-top:1.25rem">
+        <label class="flabel">Notas / alergias</label>
+        <textarea id="notas2" placeholder="Sin sal, sin picante, alergia a…"></textarea>
+      </div>
+      <div class="nav-row">
+        <button class="btn-back" onclick="goStep(1)">← Atrás</button>
+        <button class="btn-next" onclick="goStep(3)">Continuar → Cena del Viernes</button>
+      </div>
+    </div>
+    <!-- PASO 5: PLATO CUMBIA HOUSE -->
+    <div class="step-panel" id="step3">
+      <div class="step-hdr frid">
+        <div class="sh-meta">Viernes 17 de Julio · Cena</div>
+        <div class="sh-title">Cumbia House</div>
+        <div class="sh-rest">By Carlos Vives · Cocina colombiana de autor</div>
+      </div>
+      <div class="notice">Selecciona tu plato principal.</div>
+
+      <div class="cat">Sudaos</div>
+      <label class="dc" onclick="sd(this,'p3')"><input type="radio" name="p3" value="Pollo a la Pola"><div class="di"><div class="dn">Pollo a la Pola</div><div class="dd">Pierna pernil sudada en cerveza, con arroz cucayo y ensalada</div></div></label>
+      <label class="dc" onclick="sd(this,'p3')"><input type="radio" name="p3" value="Codillos del Virrey"><div class="di"><div class="dn">Codillos del Virrey</div><div class="dd">500 gr de codillo al mejor estilo bogotano, con machacao de plátano maduro y ensalada</div></div></label>
+      <label class="dc" onclick="sd(this,'p3')"><input type="radio" name="p3" value="Posta Negra"><div class="di"><div class="dn">Posta Negra</div><div class="dd">Punta de anca cocida 10 horas en salsa de cebollas, pimentón y panela; arroz con coco y patacones</div></div></label>
+      <label class="dc" onclick="sd(this,'p3')"><input type="radio" name="p3" value="Sobrebarriga Campesina"><div class="di"><div class="dn">Sobrebarriga Campesina</div><div class="dd">350 gr en cocción lenta bañada en sus jugos, con arroz cucayo y tajaditas de plátano maduro</div></div></label>
+      <label class="dc" onclick="sd(this,'p3')"><input type="radio" name="p3" value="Cantar del Llano"><div class="di"><div class="dn">Cantar del Llano</div><div class="dd">350 gr de sobrebarriga de cerdo al mejor estilo llanero, con ensalada y guarnición a elección</div></div></label>
+      <label class="dc" onclick="sd(this,'p3')"><input type="radio" name="p3" value="Bondiola a la panela"><div class="di"><div class="dn">Bondiola a la panela</div><div class="dd">Cocida al vacío 10 horas, glaseada en melao de panela, con cayeye y ensalada</div></div></label>
+      <label class="dc" onclick="sd(this,'p3')"><input type="radio" name="p3" value="Encocao de camarón"><div class="di"><div class="dn">Encocao de camarón</div><div class="dd">Con salsa de encocao caribeño, gratinado, patacones y arroz coco</div></div></label>
+
+      <div class="cat">Platos de Carlos Vives</div>
+      <label class="dc" onclick="sd(this,'p3')"><input type="radio" name="p3" value="Cayeye de Rico"><div class="di"><div class="dn">Cayeye de Rico</div><div class="dd">Gratinado con chicharrón, carne desmechada, cebollas locas, salsa tártara y ripio de plátano</div></div></label>
+      <label class="dc" onclick="sd(this,'p3')"><input type="radio" name="p3" value="Caldo de Doña Aracely"><div class="di"><div class="dn">Caldo de Doña Aracely</div><div class="dd">Costilla de res cocción lenta 12 horas con papa sabanera; arepita paisa rellena de queso</div></div></label>
+      <label class="dc" onclick="sd(this,'p3')"><input type="radio" name="p3" value="Cumbia Burger"><div class="di"><div class="dn">Cumbia Burger</div><div class="dd">Hamburguesa brioche con tocineta, queso paipa, vegetales y cebolla caramelizada; papa a la francesa</div></div></label>
+      <label class="dc" onclick="sd(this,'p3')"><input type="radio" name="p3" value="Piñón de Ramonita"><div class="di"><div class="dn">Piñón de Ramonita</div><div class="dd">Lasaña caribeña de carne molida en guiso criollo, plátano maduro, queso mozzarella gratinado y ensalada del Cumbia</div></div></label>
+      <label class="dc" onclick="sd(this,'p3')"><input type="radio" name="p3" value="Chuleta Valluna"><div class="di"><div class="dn">Chuleta Valluna</div><div class="dd">200 gr de tomahawk de cerdo adobado al estilo valluno, apanado y frito; con ensalada y guarnición</div></div></label>
+
+      <div class="cat">Sopas y Cazuelas</div>
+      <label class="dc" onclick="sd(this,'p3')"><input type="radio" name="p3" value="Frisoles Doña Aracely"><div class="di"><div class="dn">Frisoles Doña Aracely</div><div class="dd">Cazuela antioqueña de frijol cargamanto, carne en polvo, chicharrón y aguacate; arroz blanco y arepitas</div></div></label>
+      <label class="dc" onclick="sd(this,'p3')"><input type="radio" name="p3" value="Ajiaco santafereño Cumbia"><div class="di"><div class="dn">Ajiaco santafereño</div><div class="dd">Tres tipos de papa con pollo, mazorca y guascas; arroz blanco, aguacate, alcaparras y crema de leche</div></div></label>
+      <label class="dc" onclick="sd(this,'p3')"><input type="radio" name="p3" value="Mote de queso"><div class="di"><div class="dn">Mote de queso</div><div class="dd">Sopa espesita de ñame, queso y suero costeño; chicharrón, platanito maduro, berenjena y ñame fritos</div></div></label>
+
+      <div class="cat">Arroces</div>
+      <label class="dc" onclick="sd(this,'p3')"><input type="radio" name="p3" value="Arroz Apastelado"><div class="di"><div class="dn">Arroz Apastelado</div><div class="dd">Arroz costeño con hoja de plátano, vinagre criollo, pollo, cerdo, chicharrón y platanito; ají alcaparrado</div></div></label>
+
+      <div class="cat">Vegetarianos</div>
+      <label class="dc" onclick="sd(this,'p3')"><input type="radio" name="p3" value="Ceviche de mango"><div class="di"><div class="dn">Ceviche de mango</div><div class="dd">Julianitas de mango biche con salsa de ceviche cartagenero, patacones de guineo verde</div></div></label>
+      <label class="dc" onclick="sd(this,'p3')"><input type="radio" name="p3" value="Lorica Saudita"><div class="di"><div class="dn">Lorica Saudita</div><div class="dd">Ensalada sinuana, boroñía, falafel hecho en casa y arrocito con almendras</div></div></label>
+
+      <div class="fgroup" style="margin-top:1.25rem">
+        <label class="flabel">Notas / alergias</label>
+        <textarea id="notas3" placeholder="Sin sal, sin picante, alergia a…"></textarea>
+      </div>
+      <div class="nav-row">
+        <button class="btn-back" onclick="goStep(2)">← Atrás</button>
+        <button class="btn-next" onclick="goStep(4)">Revisar pedido →</button>
+      </div>
+    </div>
+    <!-- PASO 7: RESUMEN -->
+    <div class="step-panel" id="step4">
+      <div style="text-align:center;margin-bottom:1.25rem">
+        <div style="font-family:'Playfair Display',serif;font-size:1.35rem;font-weight:900;color:var(--navy);margin-bottom:.2rem">Revisa tu pedido</div>
+        <div style="font-size:.81rem;color:var(--muted)">Confirma que todo está correcto antes de enviar.</div>
+      </div>
+      <div class="spanel">
+        <h3>👤 Tu nombre</h3>
+        <div style="font-size:1rem;font-weight:600;color:var(--navy);padding:.25rem 0" id="sum_nombre">—</div>
+      </div>
+      <div class="spanel">
+        <h3>🍽️ Tus selecciones</h3>
+        <div class="mstripe thu">
+          <div class="ms-meta">Cena Jueves · Andrés D.C.</div>
+          <div class="ms-name"  id="sum_n1"></div>
+        </div>
+        <div class="mstripe fril" style="margin-top:.5rem">
+          <div class="ms-meta">Almuerzo Viernes · La Puerta de la Catedral</div>
+          <div class="ms-name"  id="sum_n2"></div>
+        </div>
+        <div class="mstripe frid" style="margin-top:.5rem">
+          <div class="ms-meta">Cena Viernes · Cumbia House</div>
+          <div class="ms-name"  id="sum_n3"></div>
+        </div>
+      </div>
+      <div class="nav-row">
+        <button class="btn-back" onclick="goStep(3)">← Atrás</button>
+        <button class="btn-confirm" id="btn-confirm" onclick="submitPedido()">✓ Confirmar y guardar pedido</button>
+      </div>
+    </div>
+
+  </div><!-- /wrap -->
+
+  <div id="confirmation">
+    <div class="conf-hero">
+      <div class="chk-circle">✓</div>
+      <h2>¡Pedido registrado!</h2>
+      <p>Tu selección fue guardada en tiempo real.<br>Nos vemos en el Neonutrition Summit · Hotel Morrison, Bogotá.</p>
+    </div>
+    <div class="conf-body" id="conf_body"></div>
+  </div>
+</div><!-- /view-form -->
+
+<!-- ═══════ ADMIN ═══════ -->
+<div id="view-admin">
+  <div class="admin-wrap">
+    <div class="admin-top">
+      <div>
+        <h2>Resumen de pedidos</h2>
+        <div class="sub">Neonutrition Summit · Julio 16–17, 2026</div>
+      </div>
+      <div style="display:flex;gap:.6rem;flex-wrap:wrap;align-items:center">
+        <span class="pill-count" id="total-count">Cargando…</span>
+        <button class="btn-refresh" onclick="renderAdmin()">↻ Actualizar</button>
+        <button class="btn-dl" onclick="downloadResumen()">⬇ Descargar .txt</button>
+      </div>
+    </div>
+    <div id="admin-content"><div class="no-orders"><span>⏳</span>Cargando pedidos…</div></div>
+  </div>
+</div>
+
+<script>
+const SB_URL = 'https://lzljnszgqjxxufpkcolv.supabase.co';
+const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx6bGpuc3pncWp4eHVmcGtjb2x2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEwNTUyNzMsImV4cCI6MjA5NjYzMTI3M30.GQ9kOllHiIp3PYZRs19_0RgS5XwQSgKMroe9VKIX6VI';
+
+const MEALS = [
+  { pk:'p1', nk:'notas1', label:'Cena Jueves',      rest:'Andrés D.C.',               cls:'thu',  border:'#0033A1' },
+  { pk:'p2', nk:'notas2', label:'Almuerzo Viernes', rest:'La Puerta de la Catedral',  cls:'fril', border:'#3F58A7' },
+  { pk:'p3', nk:'notas3', label:'Cena Viernes',     rest:'Cumbia House',              cls:'frid', border:'#00A0DF' }
+];
+const SEL = { p1:'', p2:'', p3:'' };
+const TOTAL_STEPS = 5; // 0-7
+
+/* ── SUPABASE ── */
+async function sbUpsert(row) {
+  const res = await fetch(`${SB_URL}/rest/v1/summit_pedidos?on_conflict=nombre`, {
+    method:'POST',
+    headers:{'Content-Type':'application/json','apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,'Prefer':'resolution=merge-duplicates,return=representation'},
+    body: JSON.stringify(row)
+  });
+  if (!res.ok) throw new Error(await res.text());
+  return res.json();
+}
+async function sbFetch() {
+  const res = await fetch(`${SB_URL}/rest/v1/summit_pedidos?select=*&order=nombre.asc`, {
+    headers:{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY}
+  });
+  if (!res.ok) throw new Error(await res.text());
+  return res.json();
+}
+
+/* ── TABS ── */
+function switchTab(v) {
+  document.getElementById('view-form').style.display  = v==='form'  ? 'block':'none';
+  document.getElementById('view-admin').style.display = v==='admin' ? 'block':'none';
+  document.getElementById('tab-form').classList.toggle('active',  v==='form');
+  document.getElementById('tab-admin').classList.toggle('active', v==='admin');
+  if (v==='admin') renderAdmin();
+}
+
+/* ── STEPS ── */
+function goStep(n) {
+  // validations
+  if (n===1) {
+    const nombre = document.getElementById('nombre').value.trim();
+    if (!nombre) { alert('Por favor ingresa tu nombre.'); document.getElementById('nombre').focus(); return; }
+  }
+  if (n===2  && !SEL.p1) { alert('Por favor selecciona un plato para la Cena del Jueves.'); return; }
+  if (n===3  && !SEL.p2) { alert('Por favor selecciona un plato para el Almuerzo del Viernes.'); return; }
+  if (n===4  && !SEL.p3) { alert('Por favor selecciona un plato para la Cena del Viernes.'); return; }
+  if (n===4) { fillSummary(); }
+  document.querySelectorAll('.step-panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('step'+n).classList.add('active');
+  for (let i=0; i<TOTAL_STEPS; i++) {
+    const tl = document.getElementById('tl'+i);
+    tl.classList.remove('active','done');
+    if (i < n)      tl.classList.add('done');
+    else if (i===n) tl.classList.add('active');
+  }
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+function sd(card, group) {
+  document.querySelectorAll('input[name="'+group+'"]').forEach(r => r.closest('.dc').classList.remove('selected'));
+  const radio = card.querySelector('input[type=radio]');
+  radio.checked = true;
+  card.classList.add('selected');
+  SEL[group] = radio.value;
+}
+
+function fillSummary() {
+  document.getElementById('sum_nombre').textContent = document.getElementById('nombre').value.trim();
+  MEALS.forEach(m => {
+    document.getElementById('sum_'+m.pk).textContent = SEL[m.pk];
+
+    const n = document.getElementById(m.nk).value.trim();
+    document.getElementById('sum_n'+m.pk.slice(1)).textContent = n ? '📝 '+n : '';
+  });
+}
+
+/* ── SUBMIT ── */
+async function submitPedido() {
+  const btn = document.getElementById('btn-confirm');
+  btn.disabled = true;
+  showLoader('Guardando pedido…');
+  try {
+    const row = {
+      nombre:  document.getElementById('nombre').value.trim(),
+      p1: SEL.p1, notas1: document.getElementById('notas1').value.trim(),
+      p2: SEL.p2, notas2: document.getElementById('notas2').value.trim(),
+      p3: SEL.p3, notas3: document.getElementById('notas3').value.trim(),
+      updated_at: new Date().toISOString()
+    };
+    await sbUpsert(row);
+    hideLoader();
+    document.querySelector('.wrap').style.display = 'none';
+    document.getElementById('timeline').style.display = 'none';
+    document.getElementById('confirmation').style.display = 'block';
+    document.getElementById('conf_body').innerHTML = `
+      <div class="cc"><div class="cc-meta">Médico</div><div class="cc-title">${row.nombre}</div></div>
+      ${MEALS.map(m=>`<div class="cc" style="border-left:4px solid ${m.border}">
+        <div class="cc-meta">${m.label} · ${m.rest}</div>
+        <div class="cc-title">${row[m.pk]}</div>
+        ${row[m.nk]?'<div class="cc-sub">📝 '+row[m.nk]+'</div>':''}
+      </div>`).join('')}`;
+  } catch(e) {
+    hideLoader();
+    btn.disabled = false;
+    alert('Error al guardar: '+e.message+'\nVerifica tu conexión a internet.');
+  }
+}
+
+/* ── ADMIN ── */
+async function renderAdmin() {
+  document.getElementById('admin-content').innerHTML = '<div class="no-orders"><span>⏳</span>Cargando pedidos…</div>';
+  document.getElementById('total-count').textContent = '…';
+  try {
+    const pedidos = await sbFetch();
+    document.getElementById('total-count').textContent = pedidos.length+(pedidos.length===1?' médico':' médicos');
+    if (!pedidos.length) {
+      document.getElementById('admin-content').innerHTML = '<div class="no-orders"><span>📋</span>Aún no hay pedidos registrados.</div>';
+      return;
+    }
+    let html = '';
+    MEALS.forEach(m => {
+      // Group by plato
+      const map = {};
+      pedidos.forEach(p => {
+        const dish  = p[m.pk] || '(sin selección)';
+        const notes = p[m.nk] || '';
+        if (!map[dish]) map[dish] = [];
+        map[dish].push({ nombre: p.nombre, notes });
+      });
+      html += `<div class="meal-group"><div class="mgh ${m.cls}"><div class="mgh-meta">${m.label}</div><div class="mgh-title">${m.rest}</div></div>`;
+      Object.keys(map).sort().forEach(dish => {
+        html += `<div class="dg"><div class="dg-title">${dish}<span class="dg-count">${map[dish].length}</span></div>`;
+        map[dish].forEach(med => {
+          html += `<div class="med-row">
+            <span class="med-name">• ${med.nombre}</span>
+  ${med.notes?`<span class="med-notes">📝 ${med.notes}</span>`:''}
+          </div>`;
+        });
+        html += `</div>`;
+      });
+      html += `</div>`;
+    });
+    document.getElementById('admin-content').innerHTML = html;
+  } catch(e) {
+    document.getElementById('admin-content').innerHTML = `<div class="error-msg">⚠️ Error al cargar pedidos: ${e.message}</div>`;
+  }
+}
+
+/* ── DOWNLOAD ── */
+async function downloadResumen() {
+  showLoader('Generando resumen…');
+  try {
+    const pedidos = await sbFetch();
+    if (!pedidos.length) { hideLoader(); alert('No hay pedidos registrados todavía.'); return; }
+
+    let txt = 'NEONUTRITION SUMMIT NUTRIBEN\n';
+    txt += 'Hotel Morrison, Bogotá · Julio 16–17, 2026\n';
+    txt += 'Generado: '+new Date().toLocaleString('es-CO')+'\n';
+    txt += '='.repeat(52)+'\n\n';
+
+    MEALS.forEach(m => {
+      txt += m.label.toUpperCase()+' — '+m.rest+'\n'+'-'.repeat(42)+'\n';
+      const map = {};
+      pedidos.forEach(p => {
+        const dish = p[m.pk]||'(sin selección)';
+        if (!map[dish]) map[dish] = [];
+        map[dish].push({ nombre:p.nombre, notes:p[m.nk]||'' });
+      });
+      Object.keys(map).sort().forEach(dish => {
+        txt += '\n  '+dish+'  ('+map[dish].length+' persona'+(map[dish].length>1?'s':'')+')\n';
+        map[dish].forEach(med => {
+          txt += '    • '+med.nombre+(med.notes?' ['+med.notes+']':'')+'\n';
+        });
+      });
+      txt += '\n';
+    });
+
+    txt += '='.repeat(52)+'\n';
+    txt += 'TOTAL MÉDICOS: '+pedidos.length+'\n\n';
+    txt += 'LISTA POR MÉDICO:\n'+'-'.repeat(42)+'\n';
+    pedidos.forEach(p => {
+      txt += '\n'+p.nombre+'\n';
+      txt += '  Cena Jue  (Andrés D.C.):   '+p.p1+(p.d1?' + '+p.d1:'')+(p.notas1?' ['+p.notas1+']':'')+'\n';
+      txt += '  Alm Vie  (La Catedral):    '+p.p2+(p.d2?' + '+p.d2:'')+(p.notas2?' ['+p.notas2+']':'')+'\n';
+      txt += '  Cena Vie  (Cumbia House):  '+p.p3+(p.d3?' + '+p.d3:'')+(p.notas3?' ['+p.notas3+']':'')+'\n';
+    });
+
+    hideLoader();
+    const blob = new Blob([txt],{type:'text/plain;charset=utf-8'});
+    const url  = URL.createObjectURL(blob);
+    const a    = document.createElement('a');
+    a.href=url; a.download='pedidos_nutriben_summit.txt'; a.click();
+    URL.revokeObjectURL(url);
+  } catch(e) {
+    hideLoader();
+    alert('Error al descargar: '+e.message);
+  }
+}
+
+function showLoader(msg) { document.getElementById('loader-msg').textContent=msg||'Cargando…'; document.getElementById('loader').style.display='flex'; }
+function hideLoader()    { document.getElementById('loader').style.display='none'; }
+</script>
+</body>
+</html>
