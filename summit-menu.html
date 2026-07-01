@@ -595,38 +595,33 @@ async function downloadResumen() {
     const pedidos = await sbFetch();
     if (!pedidos.length) { hideLoader(); alert('No hay pedidos registrados todavía.'); return; }
 
-    let txt = 'NEONUTRITION SUMMIT NUTRIBEN\n';
-    txt += 'Hotel Morrison, Bogotá · Julio 16–17, 2026\n';
-    txt += 'Generado: '+new Date().toLocaleString('es-CO')+'\n';
-    txt += '='.repeat(52)+'\n\n';
+    const line  = '─'.repeat(48);
+    const line2 = '═'.repeat(48);
 
-    MEALS.forEach(m => {
-      txt += m.label.toUpperCase()+' — '+m.rest+'\n'+'-'.repeat(42)+'\n';
-      const map = {};
-      pedidos.forEach(p => {
-        const dish = p[m.pk]||'(sin selección)';
-        if (!map[dish]) map[dish] = [];
-        map[dish].push({ nombre:p.nombre, notes:p[m.nk]||'' });
-      });
-      Object.keys(map).sort().forEach(dish => {
-        txt += '\n  '+dish+'  ('+map[dish].length+' persona'+(map[dish].length>1?'s':'')+')\n';
-        map[dish].forEach(med => {
-          txt += '    • '+med.nombre+(med.notes?' ['+med.notes+']':'')+'\n';
-        });
+    let txt = '';
+    txt += '🍽  NEONUTRITION SUMMIT NUTRIBEN\n';
+    txt += '    Hotel Morrison, Bogotá · Julio 16–17, 2026\n';
+    txt += '    Generado: '+new Date().toLocaleString('es-CO')+'\n';
+    txt += '    Total médicos: '+pedidos.length+'\n';
+    txt += line2+'\n\n';
+
+    const sorted = [...pedidos].sort((a,b) => a.nombre.localeCompare(b.nombre));
+
+    MEALS.forEach((m, mi) => {
+      const emoji = ['🌙','☀️','🌙'][mi];
+      txt += emoji+' '+m.label.toUpperCase()+' — '+m.rest+'\n';
+      txt += line+'\n';
+      sorted.forEach((p, i) => {
+        const plato = p[m.pk] || '(sin selección)';
+        const nota  = p[m.nk] ? '  ['+p[m.nk]+']' : '';
+        const num   = String(i+1).padStart(2,' ');
+        const nombre = p.nombre.padEnd(32,' ');
+        txt += num+'. '+nombre+' → '+plato+nota+'\n';
       });
       txt += '\n';
     });
 
-    txt += '='.repeat(52)+'\n';
-    txt += 'TOTAL MÉDICOS: '+pedidos.length+'\n\n';
-    txt += 'LISTA POR MÉDICO:\n'+'-'.repeat(42)+'\n';
-    pedidos.forEach(p => {
-      txt += '\n'+p.nombre+'\n';
-      txt += '  Cena Jue  (Andrés D.C.):   '+p.p1+(p.notas1?' ['+p.notas1+']':'')+'\n';
-      txt += '  Alm Vie  (La Catedral):    '+p.p2+(p.notas2?' ['+p.notas2+']':'')+'\n';
-      txt += '  Cena Vie  (Cumbia House):  '+p.p3+(p.notas3?' ['+p.notas3+']':'')+'\n';
-    });
-
+    txt += line2+'\n';
     hideLoader();
     const blob = new Blob([txt],{type:'text/plain;charset=utf-8'});
     const url  = URL.createObjectURL(blob);
