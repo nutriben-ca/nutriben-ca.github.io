@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sondeo — Los primeros 1,000 días sin azúcares añadidos</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --navy:   #1C1A5E;
+    --purple: #3D3A8C;
+    --violet: #6C6BB5;
+    --lt:     #EEEDF8;
+    --green:  #4CAF8A;
+    --green-lt:#E8F5EF;
+    --orange: #F4A034;
+    --orange-lt:#FEF3E2;
+    --white:  #ffffff;
+    --bg:     #F5F4FC;
+    --card:   #ffffff;
+    --border: #DDD9F0;
+    --text:   #1C1A3E;
+    --muted:  #7A78A8;
+    --r:      12px;
+    --sh:     0 2px 12px rgba(28,26,94,.08);
+  }
+
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+         background: var(--bg); color: var(--text); min-height: 100vh; }
+
+  .view { display: none; }
+  .view.active { display: block; }
+
+  /* ─── HEADER ─── */
+  .hdr { background: var(--navy); padding: 18px 20px 14px; text-align: center; }
+  .hdr-eye  { font-size: 11px; font-weight: 600; letter-spacing: .12em;
+               color: var(--violet); text-transform: uppercase; margin-bottom: 6px; }
+  .hdr h1   { font-size: 16px; font-weight: 600; color: #fff; line-height: 1.35; }
+  .hdr-sub  { font-size: 12px; color: var(--violet); margin-top: 4px; }
+  .prog-bg  { background: rgba(255,255,255,.15); height: 4px; border-radius: 2px; margin-top: 14px; }
+  .prog-fg  { height: 4px; background: var(--green); border-radius: 2px; transition: width .4s; }
+  .prog-row { display: flex; justify-content: space-between; margin-top: 6px; }
+  .prog-row span { font-size: 10px; color: var(--violet); }
+
+  /* ─── MAIN ─── */
+  .main { max-width: 480px; margin: 0 auto; padding: 0 16px 32px; }
+
+  /* ─── TARJETA ─── */
+  .qcard { background: var(--card); border: .5px solid var(--border);
+           border-radius: var(--r); box-shadow: var(--sh);
+           padding: 22px 20px 18px; margin-top: 20px; }
+  .bat-badge { display: inline-block; background: var(--lt); color: var(--navy);
+               font-size: 10px; font-weight: 600; letter-spacing: .06em;
+               text-transform: uppercase; padding: 3px 10px; border-radius: 20px; margin-bottom: 10px; }
+  .bat-badge.b2 { background: var(--green-lt); color: #1a6e4a; }
+  .q-txt  { font-size: 16px; font-weight: 500; line-height: 1.45; margin-bottom: 5px; }
+  .q-note { font-size: 12px; color: var(--muted); font-style: italic;
+            margin-bottom: 18px; line-height: 1.45; }
+
+  /* ─── OPCIONES ─── */
+  .opts { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+  .opt  { display: flex; align-items: center; gap: 12px;
+          border: 1.5px solid var(--border); border-radius: 10px;
+          padding: 12px 14px; cursor: pointer;
+          transition: border-color .15s, background .15s;
+          -webkit-tap-highlight-color: transparent; }
+  .opt:hover  { border-color: var(--purple); background: var(--lt); }
+  .opt.sel    { border-color: var(--navy); background: var(--lt); }
+  .opt-c { width: 28px; height: 28px; border-radius: 50%;
+            border: 1.5px solid var(--border); flex-shrink: 0;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 12px; font-weight: 600; color: var(--muted); transition: all .15s; }
+  .opt.sel .opt-c { background: var(--navy); border-color: var(--navy); color: #fff; }
+  .opt-t { font-size: 14px; line-height: 1.4; flex: 1; }
+
+  /* ─── BOTÓN ─── */
+  .btn { width: 100%; margin-top: 16px; background: var(--navy); color: #fff;
+         border: none; border-radius: 10px; padding: 14px;
+         font-size: 15px; font-weight: 600; cursor: pointer;
+         transition: background .15s, transform .1s; }
+  .btn:hover   { background: var(--purple); }
+  .btn:active  { transform: scale(.98); }
+  .btn:disabled { background: #C0BEDD; cursor: default; transform: none; }
+
+  /* ─── OK ─── */
+  .ok-box   { text-align: center; padding: 36px 20px; }
+  .ok-icon  { width: 56px; height: 56px; border-radius: 50%; background: var(--green-lt);
+              margin: 0 auto 14px; display: flex; align-items: center; justify-content: center; }
+  .ok-icon svg { width: 28px; height: 28px; stroke: var(--green); stroke-width: 2.5; fill: none; }
+  .ok-title { font-size: 16px; font-weight: 600; color: var(--navy); margin-bottom: 6px; }
+  .ok-sub   { font-size: 13px; color: var(--muted); line-height: 1.5; }
+
+  /* ─── MODERADOR ─── */
+  .mod-hdr { background: var(--navy); padding: 14px 20px;
+             display: flex; align-items: center; justify-content: space-between; }
+  .mod-hdr h2 { color: #fff; font-size: 14px; font-weight: 500; }
+  .live   { display: flex; align-items: center; gap: 6px; }
+  .live span { color: var(--violet); font-size: 11px; }
+  .dot    { width: 8px; height: 8px; border-radius: 50%; background: #4ade80; animation: blink 1.5s infinite; }
+  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.3} }
+
+  .mod-main { max-width: 680px; margin: 0 auto; padding: 20px 16px 32px; }
+
+  .mod-nav { display: flex; gap: 10px; margin-bottom: 18px; flex-wrap: wrap; }
+  .mod-nav button { flex: 1; min-width: 120px; border: .5px solid var(--border);
+                    background: var(--card); border-radius: 8px; padding: 8px 12px;
+                    font-size: 12px; color: var(--muted); cursor: pointer; transition: all .15s; }
+  .mod-nav button:hover { border-color: var(--navy); color: var(--navy); }
+  .mod-nav button.danger { border-color: #FCA5A5; color: #991B1B; }
+  .mod-nav button.primary { background: var(--navy); color: #fff; border-color: var(--navy); }
+  .mod-nav button.primary:hover { background: var(--purple); }
+
+  .ctr-bar { background: var(--card); border: .5px solid var(--border);
+             border-radius: var(--r); padding: 14px 18px; margin-bottom: 18px;
+             display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; }
+  .ctr-n   { font-size: 32px; font-weight: 700; color: var(--navy); }
+  .ctr-lbl { font-size: 13px; color: var(--muted); }
+  .goal-wrap { flex: 1; min-width: 120px; }
+  .goal-row  { display: flex; justify-content: space-between; margin-bottom: 4px; }
+  .goal-row span { font-size: 11px; color: var(--muted); }
+  .goal-row b    { font-size: 11px; font-weight: 600; color: var(--navy); }
+  .goal-bg  { height: 6px; background: var(--bg); border-radius: 3px; overflow: hidden; }
+  .goal-fg  { height: 6px; background: var(--green); border-radius: 3px; transition: width .5s; }
+
+  .mqcard { background: var(--card); border: .5px solid var(--border);
+            border-radius: var(--r); margin-bottom: 16px; box-shadow: var(--sh); overflow: hidden; }
+  .mq-top { padding: 14px 18px 12px; border-bottom: .5px solid var(--border);
+            display: flex; align-items: flex-start; gap: 10px; }
+  .mq-num { width: 28px; height: 28px; border-radius: 50%; background: var(--navy); color: #fff;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 12px; font-weight: 600; flex-shrink: 0; margin-top: 1px; }
+  .mq-txt  { font-size: 14px; font-weight: 500; line-height: 1.4; }
+  .mq-vts  { font-size: 11px; color: var(--muted); margin-top: 3px; }
+  .mq-opts { padding: 12px 18px 16px; display: flex; flex-direction: column; gap: 9px; }
+  .mq-row  { display: flex; align-items: center; gap: 10px; }
+  .mq-l    { width: 22px; height: 22px; border-radius: 50%; flex-shrink: 0;
+             background: var(--bg); border: .5px solid var(--border);
+             display: flex; align-items: center; justify-content: center;
+             font-size: 10px; font-weight: 600; color: var(--muted); }
+  .mq-lbl  { font-size: 13px; flex: 0 0 42%; line-height: 1.35; }
+  .mq-bw   { flex: 1; height: 10px; background: var(--bg); border-radius: 5px; overflow: hidden; }
+  .mq-bf   { height: 10px; background: #A8A3D8; border-radius: 5px; transition: width .5s; }
+  .mq-bf.top { background: var(--navy); }
+  .mq-pct  { font-size: 13px; font-weight: 600; color: var(--navy); min-width: 36px; text-align: right; }
+  .mq-n    { font-size: 11px; color: var(--muted); min-width: 24px; text-align: right; }
+  .mq-note { margin: 0 18px 14px; background: var(--lt); border-left: 3px solid var(--navy);
+             border-radius: 0 8px 8px 0; padding: 9px 12px;
+             font-size: 12px; color: var(--purple); line-height: 1.5; }
+
+  /* ─── RESUMEN ─── */
+  .res-hdr   { background: var(--navy); padding: 16px 20px; text-align: center; }
+  .res-hdr h2 { color: #fff; font-size: 16px; font-weight: 600; }
+  .res-hdr p  { color: var(--violet); font-size: 12px; margin-top: 4px; }
+  .res-main  { max-width: 680px; margin: 0 auto; padding: 20px 16px 40px; }
+  .stat-row  { display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; margin-bottom: 22px; }
+  .stat      { background: var(--card); border: .5px solid var(--border);
+               border-radius: var(--r); padding: 16px; text-align: center; }
+  .stat-n   { font-size: 30px; font-weight: 700; color: var(--navy); }
+  .stat-l   { font-size: 11px; color: var(--muted); margin-top: 3px; }
+  .rqb      { background: var(--card); border: .5px solid var(--border);
+              border-radius: var(--r); margin-bottom: 16px; overflow: hidden; }
+  .rqb-hd   { background: var(--navy); padding: 12px 16px; }
+  .rqb-hd span { color: var(--violet); font-size: 11px; font-weight: 600;
+                 text-transform: uppercase; letter-spacing: .06em; }
+  .rqb-hd p    { color: #fff; font-size: 13px; font-weight: 500; margin-top: 3px; line-height: 1.35; }
+  .rqb-body { padding: 14px 16px 16px; display: flex; flex-direction: column; gap: 10px; }
+  .ropt-row { display: grid; grid-template-columns: 1fr 120px 52px; gap: 10px; align-items: center; }
+  .ropt-lbl { font-size: 13px; line-height: 1.35; }
+  .ropt-bw  { height: 10px; background: var(--bg); border-radius: 5px; overflow: hidden; }
+  .ropt-bf  { height: 10px; background: #A8A3D8; border-radius: 5px; }
+  .ropt-bf.w { background: var(--navy); }
+  .ropt-pct { font-size: 13px; font-weight: 700; color: var(--navy); text-align: right; }
+  .insight  { background: var(--lt); border-left: 3px solid var(--navy);
+              border-radius: 0 8px 8px 0; padding: 10px 14px; margin-top: 4px;
+              font-size: 12px; color: var(--purple); line-height: 1.5; }
+  .res-foot { text-align: center; font-size: 11px; color: var(--muted);
+              margin-top: 24px; line-height: 1.6; }
+
+  .spinner { border: 3px solid var(--border); border-top-color: var(--navy);
+             border-radius: 50%; width: 22px; height: 22px;
+             animation: spin .7s linear infinite; margin: 0 auto; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .toast { position: fixed; bottom: 64px; left: 50%; transform: translateX(-50%);
+           background: #1e293b; color: #fff; padding: 10px 18px;
+           border-radius: 8px; font-size: 13px; opacity: 0;
+           transition: opacity .3s; pointer-events: none; z-index: 999; white-space: nowrap; }
+  .toast.show { opacity: 1; }
+
+  #fab { position: fixed; bottom: 16px; right: 16px; z-index: 99;
+         background: var(--navy); color: #fff; border: none; border-radius: 20px;
+         padding: 8px 16px; font-size: 11px; font-weight: 600; cursor: pointer;
+         box-shadow: 0 4px 12px rgba(28,26,94,.3); }
+</style>
+</head>
+<body>
+
+<!-- ═══════════ PARTICIPANTE ═══════════ -->
+<div id="vp" class="view active">
+  <div class="hdr">
+    <div class="hdr-eye">Neonutrition Summit Nutriben 2026</div>
+    <h1>Los primeros 1,000 días sin azúcares añadidos</h1>
+    <div class="hdr-sub">Dra. Andrea Morán · Hotel Morrison, Bogotá · Anónimo · Sin respuestas correctas</div>
+    <div class="prog-bg"><div class="prog-fg" id="progBar" style="width:0%"></div></div>
+    <div class="prog-row">
+      <span id="progLbl">Pregunta 1 de 3</span>
+      <span id="progCnt">Cargando...</span>
+    </div>
+  </div>
+
+  <div class="main">
+
+    <!-- P1 -->
+    <div class="qcard" id="qp1">
+      <div class="bat-badge">Batería 1 · Pregunta 1</div>
+      <div class="q-txt">¿En qué momento creen que un niño prueba el azúcar por primera vez?</div>
+      <div class="q-note">Lo que le surja primero — no hay respuesta correcta o incorrecta</div>
+      <ul class="opts" id="o1">
+        <li class="opt" onclick="pick(1,0,this)"><div class="opt-c">A</div><div class="opt-t">En su primer cumpleaños, con el pastel</div></li>
+        <li class="opt" onclick="pick(1,1,this)"><div class="opt-c">B</div><div class="opt-t">Cuando inicia la alimentación complementaria (6 meses)</div></li>
+        <li class="opt" onclick="pick(1,2,this)"><div class="opt-c">C</div><div class="opt-t">Desde que nace, con la fórmula o la leche materna</div></li>
+        <li class="opt" onclick="pick(1,3,this)"><div class="opt-c">D</div><div class="opt-t">Desde el útero, a través de la dieta materna</div></li>
+      </ul>
+      <button class="btn" id="b1" onclick="submit(1)" disabled>Enviar respuesta</button>
+    </div>
+
+    <!-- P2 -->
+    <div class="qcard" id="qp2" style="display:none">
+      <div class="bat-badge">Batería 1 · Pregunta 2</div>
+      <div class="q-txt">Cuando recomienda un alimento para la alimentación complementaria, ¿suele revisar el etiquetado de azúcares añadidos del producto?</div>
+      <div class="q-note">Su práctica actual — sin juzgar ninguna respuesta</div>
+      <ul class="opts" id="o2">
+        <li class="opt" onclick="pick(2,0,this)"><div class="opt-c">A</div><div class="opt-t">Siempre — es parte de mi evaluación rutinaria</div></li>
+        <li class="opt" onclick="pick(2,1,this)"><div class="opt-c">B</div><div class="opt-t">A veces, cuando el producto parece sospechoso</div></li>
+        <li class="opt" onclick="pick(2,2,this)"><div class="opt-c">C</div><div class="opt-t">Rara vez — confío en la recomendación de la marca</div></li>
+        <li class="opt" onclick="pick(2,3,this)"><div class="opt-c">D</div><div class="opt-t">No lo había considerado como criterio de selección</div></li>
+      </ul>
+      <button class="btn" id="b2" onclick="submit(2)" disabled>Enviar respuesta</button>
+    </div>
+
+    <!-- P3 -->
+    <div class="qcard" id="qp3" style="display:none">
+      <div class="bat-badge b2">Batería 2 · Pregunta 3</div>
+      <div class="q-txt">Del protocolo de lectura de etiquetas en 3 pasos, ¿cuál llevaría primero a su consulta mañana?</div>
+      <div class="q-note">Una reflexión práctica — lo que más le resonó de la charla</div>
+      <ul class="opts" id="o3">
+        <li class="opt" onclick="pick(3,0,this)"><div class="opt-c">A</div><div class="opt-t">Paso 1: ir directo a los gramos de azúcares añadidos en la tabla</div></li>
+        <li class="opt" onclick="pick(3,1,this)"><div class="opt-c">B</div><div class="opt-t">Paso 2: buscar la regla mnemotécnica ("-osa", "jarabe") en ingredientes</div></li>
+        <li class="opt" onclick="pick(3,2,this)"><div class="opt-c">C</div><div class="opt-t">Paso 3: verificar la trampa de la porción (multiplicar por porciones)</div></li>
+        <li class="opt" onclick="pick(3,3,this)"><div class="opt-c">D</div><div class="opt-t">Los tres juntos — cambio mi protocolo completo</div></li>
+      </ul>
+      <button class="btn" id="b3" onclick="submit(3)" disabled>Enviar respuesta</button>
+    </div>
+
+    <!-- OK -->
+    <div class="qcard" id="qok" style="display:none">
+      <div class="ok-box">
+        <div class="ok-icon">
+          <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+        </div>
+        <div class="ok-title">¡Gracias por participar!</div>
+        <div class="ok-sub">Sus respuestas han sido guardadas.<br>Los resultados se muestran en tiempo real en pantalla.</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ═══════════ MODERADOR ═══════════ -->
+<div id="vm" class="view">
+  <div class="mod-hdr">
+    <h2>Vista moderador — en vivo</h2>
+    <div class="live"><div class="dot"></div><span id="liveCount">0 respuestas</span></div>
+  </div>
+  <div class="mod-main">
+    <div class="mod-nav">
+      <button onclick="fetchResults()">Actualizar ↻</button>
+      <button onclick="resetDB()" class="danger">Reiniciar votos</button>
+      <button onclick="showRes()" class="primary">Ver resumen final →</button>
+    </div>
+
+    <div class="ctr-bar">
+      <div>
+        <div class="ctr-n" id="modTotal">0</div>
+        <div class="ctr-lbl">de 35 respuestas esperadas</div>
+      </div>
+      <div class="goal-wrap">
+        <div class="goal-row"><span>Meta 35</span><b id="goalPct">0%</b></div>
+        <div class="goal-bg"><div class="goal-fg" id="goalBar" style="width:0%"></div></div>
+      </div>
+    </div>
+
+    <div class="mqcard">
+      <div class="mq-top"><div class="mq-num">1</div>
+        <div><div class="mq-txt">¿En qué momento prueba el azúcar por primera vez?</div>
+        <div class="mq-vts" id="mv1">0 respuestas</div></div>
+      </div>
+      <div class="mq-opts" id="mo1"></div>
+      <div class="mq-note">El resultado en pantalla es el gancho de apertura. La Dra. Morán no revela la respuesta hasta después de ver los votos.</div>
+    </div>
+
+    <div class="mqcard">
+      <div class="mq-top"><div class="mq-num">2</div>
+        <div><div class="mq-txt">¿Revisa el etiquetado de azúcares añadidos al recomendar alimentos complementarios?</div>
+        <div class="mq-vts" id="mv2">0 respuestas</div></div>
+      </div>
+      <div class="mq-opts" id="mo2"></div>
+      <div class="mq-note">Si C+D superan el 40%, la charla tiene un punto de partida poderoso — "hoy vamos a cambiar eso".</div>
+    </div>
+
+    <div class="mqcard">
+      <div class="mq-top"><div class="mq-num">3</div>
+        <div><div class="mq-txt">¿Qué paso del protocolo de etiquetas llevaría primero a su consulta?</div>
+        <div class="mq-vts" id="mv3">0 respuestas</div></div>
+      </div>
+      <div class="mq-opts" id="mo3"></div>
+      <div class="mq-note">Mide qué parte de la charla resonó más. D (los tres juntos) = máximo impacto.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ RESUMEN ═══════════ -->
+<div id="vr" class="view">
+  <div class="res-hdr">
+    <h2>Resumen del sondeo</h2>
+    <p>Dra. Andrea Morán · Neonutrition Summit Nutriben 2026 · Hotel Morrison, Bogotá</p>
+  </div>
+  <div class="res-main">
+    <div class="stat-row">
+      <div class="stat"><div class="stat-n" id="rsTotal">0</div><div class="stat-l">médicos respondieron</div></div>
+      <div class="stat"><div class="stat-n" id="rsBrecha">—</div><div class="stat-l">brecha de práctica previa</div></div>
+      <div class="stat"><div class="stat-n" id="rsImp">—</div><div class="stat-l">con cambio de protocolo</div></div>
+    </div>
+    <div class="rqb">
+      <div class="rqb-hd"><span>Batería 1 · Pregunta 1</span><p>¿En qué momento prueba el azúcar un niño por primera vez?</p></div>
+      <div class="rqb-body" id="rb1"></div>
+    </div>
+    <div class="rqb">
+      <div class="rqb-hd"><span>Batería 1 · Pregunta 2</span><p>Revisión del etiquetado de azúcares añadidos en la práctica actual</p></div>
+      <div class="rqb-body" id="rb2"></div>
+    </div>
+    <div class="rqb">
+      <div class="rqb-hd" style="background:#3D3A8C"><span>Batería 2 · Pregunta 3</span><p>Paso del protocolo de etiquetas que llevaría primero a consulta</p></div>
+      <div class="rqb-body" id="rb3"></div>
+    </div>
+    <div class="res-foot">
+      Generado por Nutriben CA · Neonutrition Summit 2026<br>
+      Sondeo anónimo · Solo uso interno del equipo médico científico
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+<button id="fab" onclick="toggleMod()">Moderador</button>
+
+<script>
+const SB_URL = 'https://lzljnszgqjxxufpkcolv.supabase.co';
+const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx6bGpuc3pncWp4eHVmcGtjb2x2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEwNTUyNzMsImV4cCI6MjA5NjYzMTI3M30.GQ9kOllHiIp3PYZRs19_0RgS5XwQSgKMroe9VKIX6VI';
+const META  = 35;
+const TABLE = 'sondeo_azucar_respuestas';
+
+const LABELS = {
+  1:['En su primer cumpleaños, con el pastel',
+     'Cuando inicia alimentación complementaria (6 meses)',
+     'Desde que nace, con la fórmula o leche materna',
+     'Desde el útero, a través de la dieta materna'],
+  2:['Siempre — es parte de mi evaluación rutinaria',
+     'A veces, cuando el producto parece sospechoso',
+     'Rara vez — confío en la marca',
+     'No lo había considerado como criterio'],
+  3:['Paso 1: gramos de azúcares añadidos en la tabla',
+     'Paso 2: regla "-osa" / "jarabe" en ingredientes',
+     'Paso 3: trampa de la porción (multiplicar)',
+     'Los tres juntos — cambio mi protocolo completo']
+};
+const LTR = ['A','B','C','D'];
+
+let sessionId = localStorage.getItem('sondeo_azucar_sid') || crypto.randomUUID();
+localStorage.setItem('sondeo_azucar_sid', sessionId);
+let sel = {1:null,2:null,3:null};
+let etapa = parseInt(localStorage.getItem('sondeo_azucar_etapa')||'1');
+let poll = null;
+let votos = {1:[0,0,0,0],2:[0,0,0,0],3:[0,0,0,0]};
+
+async function sbPost(body){
+  const r = await fetch(`${SB_URL}/rest/v1/${TABLE}`,{
+    method:'POST',
+    headers:{'Content-Type':'application/json','apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,'Prefer':'return=minimal'},
+    body:JSON.stringify(body)
+  });
+  if(!r.ok) throw new Error(await r.text());
+}
+async function sbGetAll(){
+  const r = await fetch(`${SB_URL}/rest/v1/${TABLE}?select=pregunta,respuesta`,{
+    headers:{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY}
+  });
+  if(!r.ok) throw new Error(await r.text());
+  return r.json();
+}
+async function sbDelete(){
+  const r = await fetch(`${SB_URL}/rest/v1/${TABLE}?id=neq.00000000-0000-0000-0000-000000000000`,{
+    method:'DELETE',
+    headers:{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY}
+  });
+  if(!r.ok) throw new Error(await r.text());
+}
+
+function pick(q,idx,el){
+  if(etapa!==q) return;
+  sel[q]=idx;
+  document.querySelectorAll('#o'+q+' .opt').forEach(o=>o.classList.remove('sel'));
+  el.classList.add('sel');
+  document.getElementById('b'+q).disabled=false;
+}
+
+async function submit(q){
+  if(sel[q]===null) return;
+  const btn=document.getElementById('b'+q);
+  btn.disabled=true;
+  btn.innerHTML='<div class="spinner"></div>';
+  try{
+    await sbPost({session_id:sessionId,pregunta:q,respuesta:sel[q]});
+    document.getElementById('qp'+q).style.display='none';
+    const next=q+1;
+    if(next<=3){
+      etapa=next;
+      localStorage.setItem('sondeo_azucar_etapa',etapa);
+      document.getElementById('qp'+next).style.display='block';
+      document.getElementById('progBar').style.width=((next-1)/3*100)+'%';
+      document.getElementById('progLbl').textContent='Pregunta '+next+' de 3';
+    } else {
+      etapa=4;
+      localStorage.setItem('sondeo_azucar_etapa','4');
+      document.getElementById('progBar').style.width='100%';
+      document.getElementById('progLbl').textContent='Completado';
+      document.getElementById('qok').style.display='block';
+    }
+    updateProgCount();
+  } catch(e){
+    btn.disabled=false; btn.textContent='Enviar respuesta';
+    toast('Error al guardar. Verifique su conexión.');
+  }
+}
+
+async function updateProgCount(){
+  try{
+    const rows = await sbGetAll();
+    const p1 = rows.filter(r=>r.pregunta===1).length;
+    document.getElementById('progCnt').textContent=p1+' / '+META+' respuestas recibidas';
+  } catch(_){}
+}
+
+async function fetchResults(){
+  try{
+    const rows = await sbGetAll();
+    const v={1:[0,0,0,0],2:[0,0,0,0],3:[0,0,0,0]};
+    rows.forEach(r=>{ if(v[r.pregunta]) v[r.pregunta][r.respuesta]++; });
+    votos=v; renderMod(); updateProgCount();
+  } catch(e){ toast('Error al cargar datos'); }
+}
+
+function renderMod(){
+  const total=votos[1].reduce((a,b)=>a+b,0);
+  document.getElementById('modTotal').textContent=total;
+  document.getElementById('liveCount').textContent=total+' respuesta'+(total===1?'':'s');
+  const pct=Math.min(Math.round(total/META*100),100);
+  document.getElementById('goalPct').textContent=pct+'%';
+  document.getElementById('goalBar').style.width=pct+'%';
+  [1,2,3].forEach(q=>{
+    const tot=votos[q].reduce((a,b)=>a+b,0);
+    const maxV=Math.max(...votos[q]);
+    document.getElementById('mv'+q).textContent=tot+' respuesta'+(tot===1?'':'s');
+    let html='';
+    votos[q].forEach((v,i)=>{
+      const p=tot>0?Math.round(v/tot*100):0;
+      const top=v===maxV&&maxV>0;
+      html+=`<div class="mq-row">
+        <div class="mq-l">${LTR[i]}</div>
+        <div class="mq-lbl">${LABELS[q][i]}</div>
+        <div class="mq-bw"><div class="mq-bf${top?' top':''}" style="width:${p}%"></div></div>
+        <div class="mq-pct">${p}%</div>
+        <div class="mq-n">(${v})</div>
+      </div>`;
+    });
+    document.getElementById('mo'+q).innerHTML=html;
+  });
+}
+
+async function resetDB(){
+  if(!confirm('¿Eliminar todos los votos? Esta acción no se puede deshacer.')) return;
+  try{
+    await sbDelete();
+    votos={1:[0,0,0,0],2:[0,0,0,0],3:[0,0,0,0]};
+    renderMod(); toast('Votos eliminados');
+  } catch(e){ toast('Error al reiniciar'); }
+}
+
+function showRes(){
+  clearInterval(poll); show('vr');
+  document.getElementById('fab').textContent='← Volver';
+  buildResumen();
+}
+
+function buildResumen(){
+  const total=votos[1].reduce((a,b)=>a+b,0);
+  document.getElementById('rsTotal').textContent=total;
+
+  // Brecha: % que marcó C o D en P2 (no revisa etiquetas)
+  const t2=votos[2].reduce((a,b)=>a+b,0);
+  const brecha=t2>0?Math.round((votos[2][2]+votos[2][3])/t2*100):0;
+  document.getElementById('rsBrecha').textContent=brecha+'%';
+
+  // Impacto: % que marcó D en P3 (cambio protocolo completo)
+  const t3=votos[3].reduce((a,b)=>a+b,0);
+  const imp=t3>0?Math.round(votos[3][3]/t3*100):0;
+  document.getElementById('rsImp').textContent=imp+'%';
+
+  [1,2,3].forEach(q=>{
+    const tot=votos[q].reduce((a,b)=>a+b,0);
+    const maxV=Math.max(...votos[q]);
+    let html='';
+    votos[q].forEach((v,i)=>{
+      const p=tot>0?Math.round(v/tot*100):0;
+      const w=v===maxV&&maxV>0;
+      html+=`<div class="ropt-row">
+        <div class="ropt-lbl"><strong>${LTR[i]}.</strong> ${LABELS[q][i]}</div>
+        <div class="ropt-bw"><div class="ropt-bf${w?' w':''}" style="width:${p}%"></div></div>
+        <div class="ropt-pct">${p}%<span style="font-size:10px;font-weight:400;color:var(--muted);margin-left:3px">(${v})</span></div>
+      </div>`;
+    });
+    html+=`<div class="insight">${insight(q)}</div>`;
+    document.getElementById('rb'+q).innerHTML=html;
+  });
+}
+
+function insight(q){
+  const tot=votos[q].reduce((a,b)=>a+b,0);
+  if(!tot) return 'Sin datos suficientes.';
+  if(q===1){
+    const D=Math.round(votos[1][3]/tot*100);
+    const AB=Math.round((votos[1][0]+votos[1][1])/tot*100);
+    if(D>=40) return `${D}% ya sabía que la exposición al azúcar comienza en el útero — la charla profundiza con la evidencia científica que respalda esa intuición.`;
+    if(AB>=50) return `${AB}% asoció el primer contacto con el azúcar al cumpleaños o la alimentación complementaria. La revelación "desde el útero" tuvo un impacto máximo en esta audiencia.`;
+    return `Respuestas distribuidas: el grupo tiene niveles mixtos de conocimiento sobre programación sensorial prenatal.`;
+  }
+  if(q===2){
+    const CD=Math.round((votos[2][2]+votos[2][3])/tot*100);
+    const A=Math.round(votos[2][0]/tot*100);
+    if(CD>=50) return `${CD}% rara vez o nunca revisaba el etiquetado de azúcares añadidos — el taller práctico de la Dra. Morán tuvo impacto directo sobre la práctica clínica real.`;
+    if(A>=40) return `${A}% ya incluía esta revisión de forma rutinaria — el taller refuerza y estructura una práctica que ya existía.`;
+    return `El grupo está dividido entre quienes lo hacen a veces y quienes no lo consideraban. Oportunidad de estandarizar el protocolo en toda la audiencia.`;
+  }
+  if(q===3){
+    const D=Math.round(votos[3][3]/tot*100);
+    const A=Math.round(votos[3][0]/tot*100);
+    if(D>=35) return `✓ Alta efectividad: ${D}% se lleva el protocolo completo. La Dra. Morán logró un cambio de conducta integral en la mayoría de la audiencia.`;
+    if(A>=40) return `El Paso 1 (renglón crítico) fue el más accionable para la audiencia — simple, directo y aplicable desde la próxima consulta.`;
+    return `Las respuestas se distribuyeron entre los tres pasos — cada médico identificó un punto de entrada diferente. Considerar enviar el protocolo completo por escrito como refuerzo post-evento.`;
+  }
+}
+
+function show(id){
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+let modOpen=false;
+function toggleMod(){
+  const fab=document.getElementById('fab');
+  if(document.getElementById('vr').classList.contains('active')){
+    show('vp'); fab.textContent='Moderador'; modOpen=false; startPoll(); return;
+  }
+  modOpen=!modOpen;
+  if(modOpen){
+    show('vm'); fab.textContent='← Participante';
+    fetchResults();
+    poll=setInterval(fetchResults,5000);
+  } else {
+    show('vp'); fab.textContent='Moderador';
+    clearInterval(poll); startPoll();
+  }
+}
+
+function startPoll(){
+  clearInterval(poll);
+  poll=setInterval(updateProgCount,8000);
+}
+
+function toast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),3000);
+}
+
+function init(){
+  if(etapa>1&&etapa<=3){
+    for(let q=1;q<etapa;q++) document.getElementById('qp'+q).style.display='none';
+    document.getElementById('qp'+etapa).style.display='block';
+    document.getElementById('progBar').style.width=((etapa-1)/3*100)+'%';
+    document.getElementById('progLbl').textContent='Pregunta '+etapa+' de 3';
+  } else if(etapa>=4){
+    for(let q=1;q<=3;q++) document.getElementById('qp'+q).style.display='none';
+    document.getElementById('qok').style.display='block';
+    document.getElementById('progBar').style.width='100%';
+    document.getElementById('progLbl').textContent='Completado';
+  }
+  updateProgCount(); startPoll();
+}
+init();
+</script>
+</body>
+</html>
