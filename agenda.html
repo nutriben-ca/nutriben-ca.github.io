@@ -292,9 +292,9 @@ window.addEventListener('DOMContentLoaded', async () => {
   try{
     const [rM, rH] = await Promise.all([
       fetch(`${SUPA_URL}/rest/v1/medicos?id=eq.${medicoId}&select=*`,
-        {headers:{apikey:SUPA_ANON,Authorization:'Bearer '+SUPA_ANON}}),
+        {headers:{apikey:SUPA_ANON}}),
       fetch(`${SUPA_URL}/rest/v1/horarios?medico_id=eq.${medicoId}&select=*`,
-        {headers:{apikey:SUPA_ANON,Authorization:'Bearer '+SUPA_ANON}})
+        {headers:{apikey:SUPA_ANON}})
     ]);
     const medicos  = await rM.json();
     const horarios = await rH.json();
@@ -333,7 +333,7 @@ async function cargarCitasOcupadas(){
   const fin = new Date(CAL_MES.getFullYear(), CAL_MES.getMonth()+1, 0).toISOString().split('T')[0];
   const r = await fetch(
     `${SUPA_URL}/rest/v1/citas?medico_id=eq.${MEDICO.id}&fecha=gte.${ini}&fecha=lte.${fin}&estado=neq.cancelada&select=fecha,hora`,
-    {headers:{apikey:SUPA_ANON,Authorization:'Bearer '+SUPA_ANON}}
+    {headers:{apikey:SUPA_ANON}}
   );
   CITAS_OCU = await r.json();
 }
@@ -500,7 +500,6 @@ async function confirmarCita(){
       headers:{
         'Content-Type':'application/json',
         'apikey':SUPA_ANON,
-        'Authorization':'Bearer '+SUPA_ANON,
         'Prefer':'return=representation'
       },
       body:JSON.stringify({

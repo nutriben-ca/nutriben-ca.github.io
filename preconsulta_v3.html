@@ -1399,7 +1399,7 @@ async function llamarIA(prompt, nombre, sintsStr, tipo){
       const authH = 'Bearer '+SUPA_ANON_PC;
       const rDB = await fetch(SUPA_URL_PC+'/rest/v1/preconsultas',{
         method:'POST',
-        headers:{'Content-Type':'application/json','apikey':SUPA_ANON_PC,'Authorization':authH,'Prefer':'return=minimal'},
+        headers:{'Content-Type':'application/json','apikey':SUPA_ANON_PC,'Prefer':'return=minimal'},
         body:JSON.stringify({
           medico_id: window.MEDICO_ID||null,
           nombre_paciente:nombre,

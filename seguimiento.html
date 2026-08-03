@@ -171,7 +171,7 @@ window.addEventListener('DOMContentLoaded', async () => {
     // Buscar preconsulta por token
     const r = await fetch(
       `${SUPA_URL}/rest/v1/preconsultas?seguimiento_token=eq.${token}&select=*`,
-      { headers:{ 'apikey':SUPA_ANON, 'Authorization':'Bearer '+SUPA_ANON } }
+      { headers:{ 'apikey':SUPA_ANON } }
     );
     const rows = await r.json();
     if(!rows.length){
