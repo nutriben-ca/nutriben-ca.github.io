@@ -1,1 +1,28 @@
+name: Supabase Keepalive
 
+"on":
+  workflow_dispatch:
+  schedule:
+    - cron: "0 9 */4 * *"
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping Nutriben
+        run: |
+          CODE=$(curl -s -o /tmp/o1.json -w "%{http_code}" \
+            "https://lzljnszgqjxxufpkcolv.supabase.co/rest/v1/_keepalive?select=id&limit=1" \
+            -H "apikey: sb_publishable_U3BePGKe_qc4uBbHuL4_OA_8jbY0iMJ" || echo "000")
+          echo "Nutriben -> HTTP $CODE"
+          cat /tmp/o1.json 2>/dev/null || true
+          echo
+
+      - name: Ping Pre Clinica
+        run: |
+          CODE=$(curl -s -o /tmp/o2.json -w "%{http_code}" \
+            "https://hwfppixepttcwuqlyuqo.supabase.co/rest/v1/medicos?select=id&limit=1" \
+            -H "apikey: sb_publishable_B64SKwrgm9vJUvcf11g0zA_myBQaSfl" || echo "000")
+          echo "Pre Clinica -> HTTP $CODE"
+          cat /tmp/o2.json 2>/dev/null || true
+          echo
