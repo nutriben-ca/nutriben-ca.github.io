@@ -277,6 +277,8 @@ const SUPA_ANON = 'sb_publishable_B64SKwrgm9vJUvcf11g0zA_myBQaSfl';
 let MEDICO     = null;
 let HORARIO    = null;
 let CITAS_OCU  = [];
+let EXCEPCIONES = [];   // fechas bloqueadas (YYYY-MM-DD)
+let BLOQUES    = {};    // { lun:[{ini,fin,dur}], ... }
 let PASO       = 1;
 let FECHA_SEL  = null;
 let HORA_SEL   = null;
@@ -302,6 +304,8 @@ window.addEventListener('DOMContentLoaded', async () => {
     if(!medicos.length){ mostrarError('Médico no encontrado'); return; }
     MEDICO  = medicos[0];
     HORARIO = horarios[0] || null;
+    BLOQUES = normalizarBloques(HORARIO);
+    await cargarExcepciones(medicoId);
 
     if(!HORARIO || !HORARIO.activo){
       mostrarError('Este médico aún no tiene agenda en línea activa.');
@@ -327,6 +331,58 @@ window.addEventListener('DOMContentLoaded', async () => {
   }catch(e){ mostrarError('Error de conexión'); }
 });
 
+
+// ── Normaliza el horario a bloques por dia ─────────────────
+// Formato nuevo: {"lun":[{ini,fin,dur}], ...}
+// Formato viejo: {"lun":true} + hora_inicio/hora_fin/duracion
+function normalizarBloques(h){
+  const claves = ['lun','mar','mie','jue','vie','sab','dom'];
+  const out = {}; claves.forEach(k=> out[k] = []);
+  if(!h || !h.dias) return out;
+  claves.forEach(k=>{
+    const v = h.dias[k];
+    if(Array.isArray(v)){
+      out[k] = v.filter(b=>b && b.ini && b.fin)
+                .map(b=>({ini:b.ini, fin:b.fin, dur: parseInt(b.dur)||parseInt(h.duracion)||30}));
+    } else if(v === true){
+      out[k] = [{ ini:(h.hora_inicio||'08:00').substring(0,5),
+                  fin:(h.hora_fin||'17:00').substring(0,5),
+                  dur: parseInt(h.duracion)||30 }];
+    }
+  });
+  return out;
+}
+
+async function cargarExcepciones(medicoId){
+  const hoy = new Date().toISOString().split('T')[0];
+  try{
+    const r = await fetch(
+      `${SUPA_URL}/rest/v1/excepciones?medico_id=eq.${medicoId}&fecha=gte.${hoy}&select=fecha,hora_inicio,hora_fin`,
+      {headers:{apikey:SUPA_ANON}});
+    EXCEPCIONES = r.ok ? await r.json() : [];
+  }catch(e){ EXCEPCIONES = []; }
+}
+
+function aMin(t){ const [h,m]=(t||'0:0').split(':').map(Number); return h*60+m; }
+
+function hayCupos(k){ return (BLOQUES[k]||[]).length > 0; }
+
+// Dia completo bloqueado (excepcion sin rango horario)
+function diaBloqueado(fStr){
+  return EXCEPCIONES.some(e=> e.fecha===fStr && !e.hora_inicio);
+}
+
+// Un cupo cae dentro de algun rango bloqueado de esa fecha
+function horaBloqueada(fStr, hora, dur){
+  const ini = aMin(hora), fin = ini + (dur||30);
+  return EXCEPCIONES.some(e=>{
+    if(e.fecha !== fStr || !e.hora_inicio) return false;
+    const bi = aMin(e.hora_inicio.substring(0,5));
+    const bf = aMin(e.hora_fin.substring(0,5));
+    return ini < bf && fin > bi;   // se traslapan
+  });
+}
+
 // ── CITAS OCUPADAS ────────────────────────────────────────
 async function cargarCitasOcupadas(){
   const ini = new Date(CAL_MES.getFullYear(), CAL_MES.getMonth(), 1).toISOString().split('T')[0];
@@ -343,7 +399,6 @@ function renderCalendario(){
   const hoy   = new Date(); hoy.setHours(0,0,0,0);
   const year  = CAL_MES.getFullYear();
   const month = CAL_MES.getMonth();
-  const dias  = HORARIO?.dias || {lun:true,mar:true,mie:true,jue:true,vie:true,sab:false,dom:false};
   const mapDia = ['dom','lun','mar','mie','jue','vie','sab'];
 
   document.getElementById('cal-mes').textContent =
@@ -360,13 +415,18 @@ function renderCalendario(){
   for(let d=1;d<=totalDias;d++){
     const fecha = new Date(year, month, d);
     const key   = mapDia[fecha.getDay()];
-    const fStr  = fecha.toISOString().split('T')[0];
+    const fStr  = `${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
     const esHoy = fecha.getTime()===hoy.getTime();
-    const isPast = fecha < hoy;
-    const isDisp = dias[key] && !isPast;
-    const isSel  = FECHA_SEL===fStr;
-    const cls = isPast ? 'pasado' : !isDisp ? 'no-disponible' : isSel ? 'seleccionado' : 'disponible';
-    grid.innerHTML += `<div class="cal-dia ${cls} ${esHoy?'hoy':''}"
+    const isPast    = fecha < hoy;
+    const bloqueada = diaBloqueado(fStr);
+    const isDisp    = hayCupos(key) && !isPast && !bloqueada;
+    const isSel     = FECHA_SEL===fStr;
+    const cls = isPast ? 'pasado'
+              : bloqueada ? 'no-disponible'
+              : !isDisp ? 'no-disponible'
+              : isSel ? 'seleccionado' : 'disponible';
+    const titulo = bloqueada ? ' title="El médico no atiende este día"' : '';
+    grid.innerHTML += `<div class="cal-dia ${cls} ${esHoy?'hoy':''}"${titulo}
       onclick="${isDisp?`selFecha('${fStr}')`:''}">${d}</div>`;
   }
 }
@@ -374,6 +434,7 @@ function renderCalendario(){
 async function cambiarMes(delta){
   CAL_MES = new Date(CAL_MES.getFullYear(), CAL_MES.getMonth()+delta, 1);
   await cargarCitasOcupadas();
+  await cargarExcepciones(MEDICO.id);
   renderCalendario();
   document.getElementById('slots-card').style.display='none';
   document.getElementById('btn-p1').style.display='none';
@@ -390,26 +451,32 @@ function selFecha(f){
 }
 
 function renderSlots(){
-  const dur  = HORARIO?.duracion || 30;
-  const ini  = HORARIO?.hora_inicio || '08:00';
-  const fin  = HORARIO?.hora_fin   || '17:00';
+  const mapDia = ['dom','lun','mar','mie','jue','vie','sab'];
+  const key = mapDia[new Date(FECHA_SEL+'T12:00:00').getDay()];
+  const bs  = BLOQUES[key] || [];
   const ocupadas = CITAS_OCU.filter(c=>c.fecha===FECHA_SEL).map(c=>c.hora.substring(0,5));
 
-  let slots = [];
-  let [h,m] = ini.split(':').map(Number);
-  const [hf,mf] = fin.split(':').map(Number);
-  while(h*60+m < hf*60+mf){
-    const t = `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}`;
-    slots.push(t);
-    m += dur; if(m>=60){ h+=Math.floor(m/60); m=m%60; }
-  }
+  // Un slot por bloque, respetando la duracion de cada bloque
+  const slots = [];
+  bs.slice().sort((a,b)=>aMin(a.ini)-aMin(b.ini)).forEach(b=>{
+    let t = aMin(b.ini); const fin = aMin(b.fin); const dur = b.dur||30;
+    if(fin<=t || dur<5) return;
+    while(t + dur <= fin){
+      const hora = `${String(Math.floor(t/60)).padStart(2,'0')}:${String(t%60).padStart(2,'0')}`;
+      if(!horaBloqueada(FECHA_SEL, hora, dur)) slots.push(hora);
+      t += dur;
+    }
+  });
 
   const grid = document.getElementById('slots-grid');
+  if(!slots.length){
+    grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;color:var(--texto3);font-size:13px;padding:12px">Sin horarios disponibles este día</div>';
+    return;
+  }
   grid.innerHTML = slots.map(s=>{
     const ocu = ocupadas.includes(s);
     const sel = HORA_SEL===s;
-    return `<div class="slot ${ocu?'ocupado':sel?'sel':''}"
-      onclick="${ocu?'':"selSlot('"+s+"')"}">${s}</div>`;
+    return `<div class="slot ${ocu?'ocupado':sel?'sel':''}" onclick="${ocu?'':"selSlot('"+s+"')"}">${s}</div>`;
   }).join('');
 }
 
@@ -551,9 +618,17 @@ function mostrarConfirmacion(){
   `;
 }
 
+function durDeSlot(hora){
+  const mapDia = ['dom','lun','mar','mie','jue','vie','sab'];
+  const key = mapDia[new Date(FECHA_SEL+'T12:00:00').getDay()];
+  const m = aMin(hora);
+  const b = (BLOQUES[key]||[]).find(x=> m>=aMin(x.ini) && m<aMin(x.fin));
+  return b ? b.dur : (HORARIO?.duracion||30);
+}
+
 function agregarCalendario(){
   const fecha = new Date(FECHA_SEL+'T'+HORA_SEL+':00');
-  const fin   = new Date(fecha.getTime() + (HORARIO?.duracion||30)*60000);
+  const fin   = new Date(fecha.getTime() + (durDeSlot(HORA_SEL)||30)*60000);
   const fmt   = d => d.toISOString().replace(/[-:]/g,'').split('.')[0]+'Z';
   const url = `https://calendar.google.com/calendar/render?action=TEMPLATE`+
     `&text=${encodeURIComponent('Cita médica — '+MEDICO.nombre)}`+
