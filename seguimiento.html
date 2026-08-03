@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Seguimiento — Cortesía Nutriben</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --azul:#0033A1;--azul75:#3F58A7;--azul-cielo:#00A0DF;--azul-light:#BADDF4;--azul-ultra:#eef4fb;
+  --naranja:#FAA334;--menta:#7EC7BD;--verde:#1db86a;--verde-bg:#e6f9ef;
+  --rojo:#d93535;--rojo-bg:#fdeaea;
+  --gris1:#f4f7fc;--gris2:#e2e8f4;--gris3:#9aa3bb;
+  --texto:#1a2340;--texto2:#4a5370;--texto3:#8892aa;
+  --blanco:#fff;--radio:16px;--radio-sm:10px;--radio-xs:7px;
+  --sombra:0 2px 16px rgba(0,51,161,0.08);
+}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--gris1);
+  min-height:100vh;display:flex;flex-direction:column}
+
+/* HEADER */
+.hdr{background:linear-gradient(135deg,var(--azul) 0%,var(--azul75) 100%);
+  padding:14px 18px;color:#fff;display:flex;align-items:center;gap:12px;flex-shrink:0}
+.hdr-icon{width:38px;height:38px;border-radius:50%;background:rgba(255,255,255,0.15);
+  display:flex;align-items:center;justify-content:center;font-size:18px}
+.hdr-txt h1{font-size:15px;font-weight:700}
+.hdr-txt p{font-size:11px;opacity:.75;margin-top:2px}
+.hdr-badge{margin-left:auto;background:rgba(255,255,255,0.18);border-radius:20px;
+  padding:4px 11px;font-size:10px;font-weight:600}
+
+/* INFO PACIENTE */
+.info-bar{background:var(--blanco);border-bottom:1px solid var(--gris2);
+  padding:10px 18px;flex-shrink:0;display:none}
+.info-bar.on{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.info-chip{background:var(--azul-ultra);border:1px solid var(--azul-light);border-radius:20px;
+  padding:4px 12px;font-size:12px;color:var(--azul);font-weight:600}
+.info-dx{font-size:12px;color:var(--texto2);flex:1}
+
+/* CHAT */
+.chat-wrap{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px;
+  max-width:600px;width:100%;margin:0 auto}
+
+.msg{max-width:85%;border-radius:var(--radio-sm);padding:11px 14px;font-size:14px;
+  line-height:1.6;animation:fadeIn .2s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+
+.msg.bot{background:var(--blanco);color:var(--texto);box-shadow:var(--sombra);
+  border-bottom-left-radius:4px;align-self:flex-start}
+.msg.user{background:var(--azul);color:#fff;border-bottom-right-radius:4px;align-self:flex-end}
+.msg.sistema{background:var(--verde-bg);color:#0d6b3a;border:1px solid var(--menta);
+  border-radius:var(--radio-xs);font-size:12px;text-align:center;align-self:center;max-width:95%}
+.msg.alarma{background:var(--rojo-bg);color:var(--rojo);border:1.5px solid var(--rojo);
+  border-radius:var(--radio-xs);font-size:13px;align-self:center;max-width:95%;font-weight:600}
+
+/* CHIPS DE RESPUESTA RÁPIDA */
+.quick-chips{display:flex;flex-wrap:wrap;gap:7px;padding:8px 16px;
+  max-width:600px;width:100%;margin:0 auto}
+.qchip{padding:8px 14px;border-radius:20px;border:1.5px solid var(--azul-cielo);
+  background:var(--blanco);font-size:13px;cursor:pointer;color:var(--azul);
+  transition:all .15s;-webkit-tap-highlight-color:transparent}
+.qchip:active{background:var(--azul);color:#fff;border-color:var(--azul)}
+
+/* TYPING */
+.typing{display:flex;align-items:center;gap:5px;padding:12px 14px;
+  background:var(--blanco);border-radius:var(--radio-sm);box-shadow:var(--sombra);
+  align-self:flex-start;max-width:80px}
+.typing span{width:7px;height:7px;border-radius:50%;background:var(--azul-cielo);
+  animation:bounce .8s infinite}
+.typing span:nth-child(2){animation-delay:.15s}
+.typing span:nth-child(3){animation-delay:.3s}
+@keyframes bounce{0%,80%,100%{transform:scale(.6);opacity:.4}40%{transform:scale(1);opacity:1}}
+
+/* INPUT */
+.input-wrap{background:var(--blanco);border-top:1px solid var(--gris2);
+  padding:12px 16px;display:flex;gap:10px;align-items:flex-end;
+  max-width:600px;width:100%;margin:0 auto;flex-shrink:0}
+.input-wrap textarea{flex:1;border:1.5px solid var(--gris2);border-radius:var(--radio-xs);
+  padding:10px 12px;font-size:14px;font-family:inherit;outline:none;resize:none;
+  max-height:100px;line-height:1.5;transition:border .2s}
+.input-wrap textarea:focus{border-color:var(--azul-cielo)}
+.send-btn{width:42px;height:42px;border-radius:50%;background:var(--azul);border:none;
+  cursor:pointer;display:flex;align-items:center;justify-content:center;
+  color:#fff;font-size:18px;flex-shrink:0;transition:background .15s}
+.send-btn:hover{background:#002585}
+.send-btn:disabled{background:var(--gris2);cursor:not-allowed}
+
+/* RECOMENDACIONES */
+.rec-card{background:var(--blanco);border-radius:var(--radio-sm);box-shadow:var(--sombra);
+  padding:14px;margin:4px 0;align-self:flex-start;max-width:90%;width:100%}
+.rec-ttl{font-size:12px;font-weight:700;color:var(--azul);text-transform:uppercase;
+  letter-spacing:.4px;margin-bottom:8px;display:flex;align-items:center;gap:6px}
+.rec-body{font-size:13px;color:var(--texto);line-height:1.7}
+.rec-body ul{padding-left:16px;margin:4px 0}
+.rec-body li{margin-bottom:3px}
+
+/* LOADING INICIAL */
+.loading-init{display:flex;flex-direction:column;align-items:center;justify-content:center;
+  flex:1;gap:12px;color:var(--texto2);font-size:14px}
+.loading-init .dots{display:flex;gap:6px}
+.loading-init .dot{width:10px;height:10px;border-radius:50%;background:var(--azul-cielo);
+  animation:bounce .8s infinite}
+.loading-init .dot:nth-child(2){animation-delay:.15s}
+.loading-init .dot:nth-child(3){animation-delay:.3s}
+
+/* ERROR */
+.error-wrap{display:flex;flex-direction:column;align-items:center;justify-content:center;
+  flex:1;gap:12px;padding:24px;text-align:center}
+.error-wrap .icon{font-size:48px}
+.error-wrap h2{font-size:16px;font-weight:600;color:var(--texto)}
+.error-wrap p{font-size:13px;color:var(--texto2);line-height:1.6}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="hdr">
+  <div class="hdr-icon">🩺</div>
+  <div class="hdr-txt">
+    <h1>Seguimiento post-consulta</h1>
+    <p>Asistente clínico virtual</p>
+  </div>
+  <div class="hdr-badge">Cortesía Nutriben</div>
+</div>
+
+<!-- INFO PACIENTE -->
+<div class="info-bar" id="info-bar">
+  <span class="info-chip" id="info-nombre">—</span>
+  <span class="info-dx" id="info-dx">—</span>
+</div>
+
+<!-- CHAT -->
+<div class="chat-wrap" id="chat">
+  <div class="loading-init" id="loading-init">
+    <div class="dots">
+      <div class="dot"></div><div class="dot"></div><div class="dot"></div>
+    </div>
+    <span>Cargando su consulta…</span>
+  </div>
+</div>
+
+<!-- QUICK CHIPS -->
+<div class="quick-chips" id="quick-chips" style="display:none"></div>
+
+<!-- INPUT -->
+<div class="input-wrap" id="input-wrap" style="display:none">
+  <textarea id="msg-input" placeholder="Escriba aquí…" rows="1"
+    onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();enviar()}"
+    oninput="this.style.height='auto';this.style.height=this.scrollHeight+'px'"></textarea>
+  <button class="send-btn" id="send-btn" onclick="enviar()">↑</button>
+</div>
+
+<script>
+const SUPA_URL  = 'https://hwfppixepttcwuqlyuqo.supabase.co';
+const SUPA_ANON = 'sb_publishable_B64SKwrgm9vJUvcf11g0zA_myBQaSfl';
+
+let PRECONSULTA = null;
+let HISTORIAL   = []; // {role, content}
+let ENVIANDO    = false;
+
+// ── INIT ──────────────────────────────────────────────────
+window.addEventListener('DOMContentLoaded', async () => {
+  const params = new URLSearchParams(window.location.search);
+  const token  = params.get('token');
+
+  if(!token){
+    mostrarError('Link inválido', 'Este link de seguimiento no es válido o ha expirado.');
+    return;
+  }
+
+  try{
+    // Buscar preconsulta por token
+    const r = await fetch(
+      `${SUPA_URL}/rest/v1/preconsultas?seguimiento_token=eq.${token}&select=*`,
+      { headers:{ 'apikey':SUPA_ANON, 'Authorization':'Bearer '+SUPA_ANON } }
+    );
+    const rows = await r.json();
+    if(!rows.length){
+      mostrarError('Consulta no encontrada', 'No encontramos una consulta asociada a este link.');
+      return;
+    }
+    PRECONSULTA = rows[0];
+
+    // Mostrar info del paciente
+    document.getElementById('info-nombre').textContent = PRECONSULTA.nombre_paciente || '—';
+    document.getElementById('info-dx').textContent = PRECONSULTA.diagnostico
+      ? 'Dx: '+PRECONSULTA.diagnostico : '';
+    document.getElementById('info-bar').classList.add('on');
+
+    // Iniciar chat
+    document.getElementById('loading-init').remove();
+    document.getElementById('input-wrap').style.display='flex';
+
+    // Mensaje de bienvenida del bot
+    await mensajeBot_inicial();
+
+  }catch(e){
+    mostrarError('Error de conexión', 'No pudimos cargar su consulta. Intente de nuevo más tarde.');
+  }
+});
+
+// ── MENSAJE INICIAL DEL BOT ────────────────────────────────
+async function mensajeBot_inicial(){
+  const nombre = PRECONSULTA.nombre_paciente || 'su hijo';
+  const dx     = PRECONSULTA.diagnostico || 'la consulta de ayer';
+
+  const saludo = `¡Hola! Soy el asistente de seguimiento del consultorio. 👋\n\n¿Cómo está *${nombre}* hoy, un día después de su consulta por *${dx}*?\n\nCuénteme con sus propias palabras cómo se ha sentido.`;
+
+  agregarMsg('bot', saludo);
+
+  // Chips de respuesta rápida
+  mostrarChips([
+    '😊 Está mucho mejor',
+    '🙂 Está igual que ayer',
+    '😟 No ha mejorado',
+    '😨 Está peor',
+    '🚨 Tiene síntomas nuevos',
+  ]);
+
+  // Inicializar historial con contexto clínico (system prompt)
+  HISTORIAL = [];
+}
+
+// ── ENVIAR MENSAJE ─────────────────────────────────────────
+async function enviar(textoDirecto){
+  if(ENVIANDO) return;
+  const input = document.getElementById('msg-input');
+  const texto = textoDirecto || input.value.trim();
+  if(!texto) return;
+
+  // Mostrar mensaje del usuario
+  ocultarChips();
+  agregarMsg('user', texto);
+  input.value = '';
+  input.style.height = 'auto';
+
+  // Typing indicator
+  const typingId = mostrarTyping();
+  ENVIANDO = true;
+  document.getElementById('send-btn').disabled = true;
+
+  // Agregar al historial
+  HISTORIAL.push({ role:'user', content: texto });
+
+  try{
+    const respuesta = await llamarIA();
+    quitarTyping(typingId);
+    procesarRespuesta(respuesta);
+  }catch(e){
+    quitarTyping(typingId);
+    agregarMsg('bot', 'Lo siento, tuve un problema. Por favor intente de nuevo o contacte al consultorio directamente.');
+  }finally{
+    ENVIANDO = false;
+    document.getElementById('send-btn').disabled = false;
+  }
+}
+
+// ── LLAMAR IA ──────────────────────────────────────────────
+async function llamarIA(){
+  const nombre  = PRECONSULTA.nombre_paciente || 'el paciente';
+  const edad    = PRECONSULTA.edad || 'desconocida';
+  const dx      = PRECONSULTA.diagnostico || 'no especificado';
+  const tx      = PRECONSULTA.tratamiento || 'no especificado';
+  const resumen = PRECONSULTA.resumen_ia || '';
+
+  const systemPrompt = `Eres un asistente de seguimiento post-consulta pediátrico de Cortesía Nutriben. 
+Tu función es hacer seguimiento 24 horas después de la consulta médica.
+
+DATOS DEL PACIENTE:
+- Nombre: ${nombre}
+- Edad: ${edad}
+- Diagnóstico: ${dx}
+- Tratamiento indicado: ${tx}
+- Resumen de la consulta: ${resumen.substring(0, 500)}
+
+INSTRUCCIONES:
+1. Habla en español simple y cálido, como si fuera un familiar médico.
+2. Evalúa la evolución según el diagnóstico y tratamiento indicado.
+3. Si detectas señales de alarma (fiebre que no baja, dificultad respiratoria, convulsiones, manchas moradas, no tolera líquidos), responde con JSON: {"alarma": true, "motivo": "descripción"}
+4. Si la evolución es normal, ofrece recomendaciones específicas del día y tranquiliza.
+5. Si no ha mejorado pero no hay alarma, sugiere consultar nuevamente.
+6. Después de 3-4 mensajes, ofrece un resumen de recomendaciones estructurado.
+7. Nunca diagnostiques ni cambies el tratamiento — solo haz seguimiento y orienta.
+8. Si hay alarma, indica INMEDIATAMENTE ir a urgencias o llamar al médico.
+
+FORMATO DE RESPUESTA NORMAL: texto conversacional en español.
+FORMATO DE ALARMA: {"alarma": true, "motivo": "descripción del síntoma de alarma"}
+FORMATO DE RECOMENDACIONES FINALES: {"recomendaciones": {"dieta": "...", "cuidados": "...", "medicamentos": "...", "cuando_regresar": "..."}}`;
+
+  const mensajes = [
+    { role:'user', content: systemPrompt },
+    { role:'assistant', content: `Entendido. Haré el seguimiento de ${nombre} con diagnóstico de ${dx}.` },
+    ...HISTORIAL
+  ];
+
+  const r = await fetch(`${SUPA_URL}/functions/v1/ai-clinico`,{
+    method:'POST',
+    headers:{
+      'Content-Type':'application/json',
+      'Authorization':'Bearer '+SUPA_ANON,
+    },
+    body: JSON.stringify({
+      prompt: mensajes.map(m=>`${m.role.toUpperCase()}: ${m.content}`).join('\n\n'),
+      tipo: 'seguimiento'
+    })
+  });
+
+  if(!r.ok) throw new Error('Error IA');
+  const data = await r.json();
+  const txt = data.texto || '';
+
+  // Agregar respuesta al historial
+  HISTORIAL.push({ role:'assistant', content: txt });
+  return txt;
+}
+
+// ── PROCESAR RESPUESTA ─────────────────────────────────────
+function procesarRespuesta(txt){
+  // Intentar parsear JSON especial
+  try{
+    const limpio = txt.trim().replace(/^```json\n?/, '').replace(/\n?```$/, '');
+    const obj = JSON.parse(limpio);
+
+    if(obj.alarma){
+      mostrarAlarma(obj.motivo);
+      return;
+    }
+    if(obj.recomendaciones){
+      mostrarRecomendaciones(obj.recomendaciones);
+      return;
+    }
+  }catch(e){}
+
+  // Respuesta normal de texto
+  agregarMsg('bot', txt);
+
+  // Chips contextuales según contenido
+  if(txt.toLowerCase().includes('¿algo más') || txt.toLowerCase().includes('alguna otra')){
+    mostrarChips(['Sí, tengo otra duda', 'No, gracias']);
+  } else if(HISTORIAL.length <= 4){
+    mostrarChips(['¿Cuánto tiempo más tomar el medicamento?', 'Tiene un poco de fiebre todavía', 'Ya está bien, gracias']);
+  }
+}
+
+// ── ALARMA ─────────────────────────────────────────────────
+function mostrarAlarma(motivo){
+  const chat = document.getElementById('chat');
+
+  const div = document.createElement('div');
+  div.className = 'msg alarma';
+  div.innerHTML = `🚨 <strong>SEÑAL DE ALARMA DETECTADA</strong><br>${motivo}<br><br>
+    <strong>Por favor diríjase a urgencias o llame al médico de inmediato.</strong>`;
+  chat.appendChild(div);
+
+  // Botón de llamada
+  const btn = document.createElement('div');
+  btn.className = 'msg sistema';
+  btn.innerHTML = `📞 <strong>Contacte al consultorio ahora</strong><br>
+    <a href="tel:${PRECONSULTA.tel_medico||''}" style="color:var(--verde);font-weight:600">Llamar al médico</a>`;
+  chat.appendChild(btn);
+  chat.scrollTop = chat.scrollHeight;
+
+  // Deshabilitar input
+  document.getElementById('input-wrap').style.display='none';
+}
+
+// ── RECOMENDACIONES ────────────────────────────────────────
+function mostrarRecomendaciones(rec){
+  const chat = document.getElementById('chat');
+
+  agregarMsg('bot', '¡Me alegra saber que está mejorando! Aquí le dejo un resumen de recomendaciones para los próximos días:');
+
+  const card = document.createElement('div');
+  card.className = 'rec-card';
+  card.innerHTML = `
+    ${rec.dieta ? `<div class="rec-ttl">🥗 Alimentación</div><div class="rec-body">${rec.dieta}</div><br>` : ''}
+    ${rec.cuidados ? `<div class="rec-ttl">🏠 Cuidados en casa</div><div class="rec-body">${rec.cuidados}</div><br>` : ''}
+    ${rec.medicamentos ? `<div class="rec-ttl">💊 Medicamentos</div><div class="rec-body">${rec.medicamentos}</div><br>` : ''}
+    ${rec.cuando_regresar ? `<div class="rec-ttl">📅 ¿Cuándo regresar?</div><div class="rec-body">${rec.cuando_regresar}</div>` : ''}
+  `;
+  chat.appendChild(card);
+
+  agregarMsg('sistema', 'Seguimiento completado ✅ — Cortesía Nutriben');
+  chat.scrollTop = chat.scrollHeight;
+  document.getElementById('input-wrap').style.display='none';
+}
+
+// ── UTILIDADES ─────────────────────────────────────────────
+function agregarMsg(tipo, texto){
+  const chat = document.getElementById('chat');
+  const div  = document.createElement('div');
+  div.className = 'msg '+tipo;
+  div.innerHTML = texto.replace(/\*([^*]+)\*/g, '<strong>$1</strong>').replace(/\n/g,'<br>');
+  chat.appendChild(div);
+  chat.scrollTop = chat.scrollHeight;
+}
+
+function mostrarTyping(){
+  const chat = document.getElementById('chat');
+  const div  = document.createElement('div');
+  div.className = 'typing';
+  div.id = 'typing-'+Date.now();
+  div.innerHTML = '<span></span><span></span><span></span>';
+  chat.appendChild(div);
+  chat.scrollTop = chat.scrollHeight;
+  return div.id;
+}
+
+function quitarTyping(id){
+  document.getElementById(id)?.remove();
+}
+
+function mostrarChips(opciones){
+  const wrap = document.getElementById('quick-chips');
+  wrap.style.display='flex';
+  wrap.innerHTML = opciones.map(o =>
+    `<div class="qchip" onclick="enviar('${o.replace(/'/g,"\\'")}')">${o}</div>`
+  ).join('');
+}
+
+function ocultarChips(){
+  const wrap = document.getElementById('quick-chips');
+  wrap.style.display='none';
+  wrap.innerHTML='';
+}
+
+function mostrarError(titulo, desc){
+  document.getElementById('loading-init')?.remove();
+  document.getElementById('chat').innerHTML = `
+    <div class="error-wrap">
+      <div class="icon">⚠️</div>
+      <h2>${titulo}</h2>
+      <p>${desc}</p>
+    </div>`;
+}
+</script>
+</body>
+</html>
