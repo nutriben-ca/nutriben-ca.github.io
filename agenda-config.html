@@ -779,7 +779,10 @@ async function guardar(){
     activo:          document.getElementById('activo').checked
   };
 
-  const r = await fetch(`${SUPA_URL}/rest/v1/horarios`,{
+  // on_conflict=medico_id es obligatorio: sin el, merge-duplicates
+  // resuelve contra la llave primaria (id) y choca con el UNIQUE
+  // de medico_id devolviendo 409 al intentar actualizar.
+  const r = await fetch(`${SUPA_URL}/rest/v1/horarios?on_conflict=medico_id`,{
     method:'POST',
     headers:{'Content-Type':'application/json', apikey:SUPA_ANON,
       Authorization:'Bearer '+SESSION.access_token,
